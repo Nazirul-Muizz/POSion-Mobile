@@ -1,62 +1,54 @@
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { JSX } from "react";
 import { useAuth } from "@/context/authContext";
 import {ROLES} from "@/constants/Roles";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
-import { useRouter, usePathname } from "expo-router";
-import { useRoute } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+
+type Page = {
+    label: string;
+    icon: JSX.Element;
+    path: '/Order' | '/MenuManager' | '/UserProfile';
+}
 
 export default function FooterNavigation() {
-    const user = useAuth();
-    const role = user.userRole;
     const router = useRouter();
-    const [currentPage, setCurrentPage] = useState();
-    const currentRoute = useRoute();
-    const pathname = usePathname();
+    const { userRole, isRoleLoading } = useAuth();
 
-    console.log(`user's role in FooterNavi component: ${role}`)
+    if (isRoleLoading || !userRole) return null;
 
-    console.log(`current route is ${currentRoute.name}`);
 
-   return role === ROLES.MANAGER ? (
+    const rolePages = {
+        [ROLES.MANAGER]: [
+            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
+            { label: 'Menu', icon: <MaterialIcons name="menu-book" size={24} color="white" />, path: '/MenuManager' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+        ],
+        [ROLES.EMPLOYEE_REST]: [
+            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+        ],
+        [ROLES.EMPLOYEE_STALL]: [
+            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+        ],
+    };
+
+    const pages = rolePages[userRole] ?? [];
+
+    return pages.length === 0 ? null : (
     <View style={styles.footer}>
-        <TouchableOpacity
-             onPress={() => router.replace('/Order')}
-        >
-            <FontAwesome6 name="rectangle-list" size={24} color="white" />
-            <Text style={styles.label}>Order</Text>
+        {pages.map((page) => (
+        <TouchableOpacity key={page.label} onPress={() => router.replace(page.path as Page["path"])}>
+            {page.icon}
+            <Text style={styles.label}>{page.label}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-            onPress={() => router.replace('/MenuManager')}
-        >
-            <MaterialIcons name="menu-book" size={24} color="white" />
-            <Text style={styles.label}>Menu</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-            onPress={() => router.replace('/UserProfile')}
-        >
-            <Feather name="user" size={24} color="white" />
-            <Text style={styles.label}>Profile</Text>
-        </TouchableOpacity>
+        ))}
     </View>
-    ) : (role === ROLES.EMPLOYEE_REST || role === ROLES.EMPLOYEE_STALL) ? (
-    <View style={styles.footer}>
-        <TouchableOpacity
-            onPress={() => router.replace('/Order')}
-        >
-            <FontAwesome6 name="rectangle-list" size={24} color="white" />
-            <Text style={styles.label}>Order</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-            onPress={() => router.replace('/UserProfile')}
-        >
-            <Feather name="user" size={24} color="white" />
-            <Text style={styles.label}>Profile</Text>
-        </TouchableOpacity>
-    </View>
-    ) : null;
+    );
+
 }
 
 const styles = StyleSheet.create({
