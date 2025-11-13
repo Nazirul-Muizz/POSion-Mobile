@@ -1,0 +1,17 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, Button } from "react-native";
+
+export default function BlankPage() {
+
+    return (
+        <SafeAreaView style={ styles.container }>
+            <Text style={ styles.text }>Oops! This page is still in development</Text>
+        </SafeAreaView>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {flex:1, justifyContent:'center', alignItems:'center'},
+    text: {fontSize:15, color:'black', textAlign:'center', marginBottom:10}
+})
+
