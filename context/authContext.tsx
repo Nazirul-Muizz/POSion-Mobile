@@ -1,22 +1,22 @@
 import { createContext, useState, ReactNode, useContext, useEffect } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { profile } from "@/data/users"; // Actual profile must come from database EMPLOYEE TABLE
 import { supabase } from "../lib/supabase-client";
+import { fetchEmployeeData, EmployeeProfile, checkAndAssignUUID } from "@/services/employeeServices";
+import { useQuery } from '@tanstack/react-query';
 
 interface User {
     id: string;
-    name: string;
     email: string;
-    password: string;
 }
 
 interface AuthContextType {
     user: User | null;
+    username: string | null;
     userRole: string | null;
     login: (email: string, password: string) => void;
     logout: () => void;
     loading:boolean;
     isRoleLoading: boolean;
+    refetchRole: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,8 +24,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [isRoleLoading, setIsRoleLoading] = useState(false);
+
+    const { data: userIdAfterAssignment, isLoading: isAssignmentLoading } = 
+    useQuery({
+      queryKey: ['userIdAssigned', user?.id],
+      queryFn: () => checkAndAssignUUID(user!.id, user!.email),
+      enabled: !!user && !loading,
+      staleTime: Infinity
+    })
+
+    const {
+      data: profileData, // this is from EmployeeProfile interface
+      isLoading: isProfileLoading,
+      refetch: refetchRole
+    } = useQuery({
+      queryKey: ['userProfile', user?.id],
+      queryFn: () => fetchEmployeeData(userIdAfterAssignment!),
+      enabled: !!user && !loading && !!userIdAfterAssignment,
+      staleTime: 5 * 60 * 1000 // 5 minutes
+    })
+
+    const isRoleLoading = isAssignmentLoading || isProfileLoading;
+    const userRole = profileData?.role ?? null;
+    const username = profileData?.username ?? null;
 
     useEffect(() => {
       let isMounted = true;
@@ -55,56 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isMounted = false;
         listener.subscription.unsubscribe();
       };
-    }, []);
-
-  useEffect( () => {
-      let isMounted = true; // Flag for cleanup
-  
-      if (user && user.email) {
-        if (isMounted) setIsRoleLoading(true);
-  
-        const findRole = async () => {
-          // --- ASYNC DATA FETCH & FIND LOGIC ---
-          // 1. Simulate API call delay (Replace this with your actual Firestore/API call!)
-          const userProfiles = await new Promise<typeof profile>( 
-            (resolve) => {
-              setTimeout(() => resolve(profile), 500);
-            }
-          )
-  
-          console.log(userProfiles);
-  
-          // 2. Perform the safe .find() matching operation
-          const userProfile = userProfiles.find(p => p.email === user.email);
-  
-          console.log(`user email from auth: ${user.email}`);
-          console.log(`user email from data object: ${userProfile?.email}`);
-  
-          const finalRole = userProfile ? userProfile.role : null;
-  
-          console.log("   -> ROLE FETCH COMPLETE: Found Profile:", !!userProfile, "| Role Set To:", finalRole);
-  
-          // 3. Set the role state (Default to EMPLOYEE if no profile found)
-          // ROLES is now safely imported from '@/constants/roles'
-          setUserRole(finalRole);
-          setIsRoleLoading(false);
-        }
-  
-        findRole();
-  
-      } else if (user === null) {
-        // Clean up state if the user explicitly logs out
-        if (isMounted) {
-            setUserRole(null);
-            setIsRoleLoading(false);
-        }
-      }
-      
-        // Cleanup function: runs when the component unmounts or before the next effect run
-        return () => {
-          isMounted = false;
-        };
-    }, [user])  
+    }, []); 
 
 
   const login = async (email: string, password: string) => {
@@ -120,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, userRole, isRoleLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, userRole, username, isRoleLoading, refetchRole }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { supabase } from '../lib/supabase-client';
-import { Button, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import CustomButton from './CustomButton';
+import { assignEmployeeUUID } from '@/services/employeeServices';
 
 
 export default function Auth() {
@@ -11,8 +12,48 @@ export default function Auth() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter();
+  const callCountRef = useRef(0);
 
   async function signInWithEmail() {
+    setLoading(true)
+    try {
+        const trimmedEmail = email.trim()  // remove extra spaces
+        if (!trimmedEmail) {
+          Alert.alert('Sign Up Error', 'Please enter a valid email')
+          setLoading(false)
+          return
+        }
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password: password,
+        })
+
+        console.log(`data: ${data.user?.email}`)
+
+        if (error) {
+          Alert.alert('Sign in Error', error.message)
+        }
+
+        // try {
+        //   await assignEmployeeUUID();
+        // } catch (e) {
+        //   console.error("UUID assignment failed:", e);
+        // }
+        
+    } catch(e) {
+        console.error(e)
+    }
+
+    setLoading(false)
+  }
+
+  async function signUpWithEmail() {
+
+    if (loading) return;
+
+    callCountRef.current++;
+    console.log(`call count: ${callCountRef.current}`);
+
     setLoading(true)
     try {
       const trimmedEmail = email.trim()  // remove extra spaces
@@ -21,50 +62,26 @@ export default function Auth() {
         setLoading(false)
         return
       }
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      const { data, error } = await supabase.auth.signUp({
         email: trimmedEmail,
-        password: password,
+        password,
       })
 
-      console.log(`data: ${data.user?.email}`)
-
       if (error) {
-        Alert.alert('Sign in Error', error.message)
+        Alert.alert('Sign Up Error', error.message)
+        console.error(`Sign Up Error in Auth: ${error}`)
+        setLoading(false) // Add a return and setLoading here for the auth error
       } else {
-        //Alert.alert('Sign in Successful')
-
+        Alert.alert('Sign Up Successful!', 'Please login to proceed into the app')
+        console.log(`confirmed sign up successful`)
       }
-    } catch(e) {
+
+    } catch (e) {
       console.error(e)
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false)
-  }
-
-  async function signUpWithEmail() {
-  setLoading(true)
-  try {
-    const trimmedEmail = email.trim()  // remove extra spaces
-    if (!trimmedEmail) {
-      Alert.alert('Sign Up Error', 'Please enter a valid email')
-      setLoading(false)
-      return
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email: trimmedEmail,
-      password,
-    })
-
-    if (error) {
-      Alert.alert('Sign Up Error', error.message)
-    } else {
-      Alert.alert('Sign Up Successful', `You may login using your credentials`)
-    }
-  } catch (e) {
-    console.error(e)
-  }
-  setLoading(false)
 }
 
 
@@ -89,11 +106,19 @@ export default function Auth() {
             style={styles.input}
         />
       </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button title="Register" disabled={loading} onPress={() => signUpWithEmail()} />
+      <View style={[styles.buttonContainer, styles.mt20]}>
+        <CustomButton 
+          title='Login' 
+          onPress={() => signInWithEmail()}
+          textStyle={ {color: 'white'} }
+          style={ styles.button }
+        />
+        <CustomButton 
+          title='Register' 
+          onPress={() => signUpWithEmail()}
+          textStyle={ {color: 'white'} }
+          style={ styles.button }
+        />     
       </View>
     </View>
   )
@@ -112,11 +137,19 @@ const styles = StyleSheet.create({
   mt20: {
     marginTop: 20,
   },
+  buttonContainer: {
+    flexDirection:'row',
+    justifyContent: 'center'
+  },
   input: { 
     marginVertical: 10, 
     borderWidth: 1, 
-    borderColor: '#ccc', 
+    borderColor: 'black', 
     padding: 10, 
     borderRadius: 5 
 },
+  button: {
+    backgroundColor: 'black',
+    marginHorizontal: 10
+  }
 })
