@@ -1,17 +1,16 @@
 import { useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { supabase } from '../lib/supabase-client';
 import { TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
 import CustomButton from './CustomButton';
-import { assignEmployeeUUID } from '@/services/employeeServices';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 
 export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const callCountRef = useRef(0);
 
   async function signInWithEmail() {
@@ -84,6 +83,10 @@ export default function Auth() {
     }
 }
 
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  }
+
 
   return (
     <View style={styles.container}>
@@ -95,16 +98,22 @@ export default function Auth() {
             autoCapitalize="none"
             style={styles.input}
         />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <TextInput
-          placeholder="Password"
+        <View style={ styles.passwordInputContainer }>
+          <TextInput
+            placeholder="Password"
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={!isPasswordVisible}
             autoCapitalize="none"
-            style={styles.input}
-        />
+            style={[styles.input, { flex: 1}]}
+          />
+          <Pressable
+            onPress={togglePasswordVisibility}
+            style={ styles.iconContainer}
+          >
+            <FontAwesome5 name={isPasswordVisible ? "eye-slash" : "eye"} size={24} color="black" />
+          </Pressable>
+        </View>
       </View>
       <View style={[styles.buttonContainer, styles.mt20]}>
         <CustomButton 
@@ -148,8 +157,18 @@ const styles = StyleSheet.create({
     padding: 10, 
     borderRadius: 5 
 },
+  passwordInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
   button: {
     backgroundColor: 'black',
     marginHorizontal: 10
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15,
+    padding: 5
   }
 })
