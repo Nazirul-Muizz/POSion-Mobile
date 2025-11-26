@@ -1,107 +1,149 @@
-import { View, StyleSheet, Text, Animated, TouchableOpacity, TextInput, SectionList } from "react-native";
 import CustomButton from "@/component/CustomButton";
 import CustomSidebar from "@/component/CustomSidebar";
-import { menu, addOns, MenuType, MenuItemType } from "@/data/menu";
-import { useState, useEffect, useMemo } from "react";
-import Entypo from '@expo/vector-icons/Entypo';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import FullPageSpinner from "@/component/FullPageSpinner";
+import { useMenuSections } from "@/hooks/MenuHook";
+import { useMemo, useState } from "react";
+import { ListRenderItemInfo, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+
+type MenuItem = {
+    menu_id: number,
+    menu_item: string,
+    isAvailable: boolean
+}
 
 export default function MenuManagement() {
     const [showSidebar, setShowSidebar] = useState(false);
-    const [menuItem, setMenuItem] = useState<MenuItemType[]>([]);
-    const [activeTab, setActiveTab] = useState< 'Available' | 'Unavailable' >('Available');
+    const [activeTab, setActiveTab] = useState< 'Ada' | 'Tiada' >('Ada');
     const [search, setSearch] = useState("");
+    const { menuList, isMenuLoading, isMenuFetching } = useMenuSections();
 
-    useEffect( () => {
-        const fetchMenu = async () => {
-            try {
-                const jsonValue = await AsyncStorage.getItem("MenuItems");
-                const storageMenu: MenuItemType[] = jsonValue != null ? JSON.parse(jsonValue) : null;
+    const filteredSections = useMemo(() => {
+        if (!Array.isArray(menuList)) return [];
 
-                console.log(`Total items loaded into state: ${storageMenu.length}`);
+        menuList.forEach(section => {
+            console.log("SECTION:", section.title);
 
-                setMenuItem(storageMenu)
+            const items = Array.isArray(section.data) ? section.data : [];
 
-            } catch (e) {
-                console.error(`failed to fetch menu: ${e}`);
-            }
-        }
+            items.forEach(item => {
+                console.log(
+                    "ITEM:", item.menu_item,
+                    "| isAvailable:", item.isAvailable,
+                    "| TYPE:", typeof item.isAvailable
+                );
+            });
+        });
 
-        fetchMenu();
+        const searchStatement = search.trim().toLowerCase();
 
-    }, [menu])
+        const checkAvailability = activeTab === 'Ada'
 
-    useEffect( () => {
-        const storeMenu = async () => {
-            try {
-                const jsonValue = JSON.stringify(menuItem);
-                await AsyncStorage.setItem("MenuItems", jsonValue);
-            } catch (e) {
-                console.error(`failed to store menu: ${e}`);
-            } 
-        }
+        //console.log("menuList:", JSON.stringify(menuList, null, 2));
 
-        storeMenu(); 
-    
-    }, [menuItem])
+        return menuList
 
-    const filteredMenu = useMemo( () => {
+        .map(section => {
+            const items = Array.isArray(section.data) ? section.data : [];
 
-        const tabFiltered = menuItem.filter( item => {
-            return (activeTab === 'Available') ? item.isAvailable : !item.isAvailable;
+            const filteredData = items.filter( item => {
+                if (!item) return false;
+                const matchedSearches = searchStatement === '' || (typeof item.menu_item === 'string' && item.menu_item.toLowerCase().includes(searchStatement));
+                const matchAvailability = item.isAvailable === checkAvailability;
+                return matchedSearches && matchAvailability;
+            })
+
+            return {...section, data: filteredData}
         })
 
-        if (search.trim().length > 0) {
-            const lowerCaseQuery = search.toLowerCase();
-            return tabFiltered.filter(item => Object.keys(item).includes(lowerCaseQuery))
-        }
+        .filter(section => section.data.length > 0)
 
-        console.log(`tab filtered: ${tabFiltered}`)
+    }, [menuList, search, activeTab])
 
-        return tabFiltered;
 
-    }, [menuItem, activeTab, search])
+    const renderItem = ({item}: ListRenderItemInfo<MenuItem>) => {
+        //console.log(`menu id from render item: ${item.menu_id}`)
+        return (
+            <View style={ styles.menuItemContainer }>
+                <Text style={{flex:8, color:'white', marginVertical: 10, fontSize:16}}>{item.menu_item}</Text>
+                {activeTab === 'Ada' ? (
+                    <View style={{flex:1}}>
+                    <TouchableOpacity style={{ }} onPress={() => {}}>
+                        <FontAwesome name="remove" size={22} color="red" style={ styles.operationIcons } />
+                        {/* <Text style={{color:'black', fontSize:10,  flexShrink:1, flexGrow:1, flexBasis:'0%'}}>Tanda Tiada</Text> */}
+                    </TouchableOpacity>
+                    </View>
+                ) :
+                <View style={{flex:1}}>
+                    <TouchableOpacity>
+                        <FontAwesome6 name="add" size={22} color="green" style={ styles.operationIcons}/>
+                        {/* <Text style={{color:'black', fontSize:10}}>Tanda Ada</Text> */}
+                    </TouchableOpacity>
+                </View>
+                }
+            </View>
+        )
+    }
 
-    const toggleUnavailable = () => {
-        //TODO: finish this 
-        // PURPOSE: mark unavailable and vice versa
-    };
 
     return (
         <View style={{ flex:1, backgroundColor:'black' }}>
-            <View style={{ flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
+            {isMenuLoading || isMenuFetching && ( <FullPageSpinner message="Loading menu from database..."/> ) }
+            <View style={{flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
                 <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
                     <Entypo name="menu" size={36} color="white" />
                 </TouchableOpacity>
-            <Text style={ styles.title }>Menu Management</Text>
+            <Text style={ styles.title }>Pengurusan Menu</Text>
+            </View>
+            <View style={styles.searchContainer}>
+                    <Entypo name="magnifying-glass" size={20} color="#666" style={styles.searchIcon} />
+                    <TextInput
+                        placeholder="Cari melalui nama item"
+                        value={search}
+                        onChangeText={setSearch}
+                        style={{justifyContent:'center'}}
+                    />
             </View>
             <View style={ styles.buttonContainer }>
                 <CustomButton
-                    title='Available'
-                    onPress={() => {setActiveTab('Available')}}
-                    textStyle={activeTab === 'Available' ? { color: 'white' } : { color: 'black' }}
-                    style={[ styles.pageButton, activeTab === 'Available' ? styles.activeButton : styles.inactiveButton]}
+                    title='Ada'
+                    onPress={() => {setActiveTab('Ada')}}
+                    textStyle={activeTab === 'Ada' ? { color: 'white' } : { color: 'black' }}
+                    style={[ styles.pageButton, activeTab === 'Ada' ? styles.activeButton : styles.inactiveButton]}
                 />
                 <CustomButton
-                    title='Unavailable'
-                    onPress={() => {setActiveTab('Unavailable')}}
-                    textStyle={activeTab === 'Unavailable' ? { color: 'white' } : { color: 'black' }}
-                    style={[ styles.pageButton, activeTab === 'Unavailable' ? styles.activeButton : styles.inactiveButton]}
+                    title='Tiada'
+                    onPress={() => {setActiveTab('Tiada')}}
+                    textStyle={activeTab === 'Tiada' ? { color: 'white' } : { color: 'black' }}
+                    style={[ styles.pageButton, activeTab === 'Tiada' ? styles.activeButton : styles.inactiveButton]}
                 />
-                <View style={styles.searchContainer}>
-                    <Entypo name="magnifying-glass" size={20} color="#666" style={styles.searchIcon} />
-                    <TextInput
-                        placeholder="Search by item name"
-                        value={search}
-                        onChangeText={setSearch}
-                    />
-                </View>
+
             </View>
+
+            <SectionList 
+                sections={filteredSections}
+                renderItem={renderItem}
+                renderSectionHeader={ ({section}) => {
+                    return (
+                        <View style={ headerStyles.headerContainer }>
+                            <Text style={ headerStyles.headerTitle }>{section.title}</Text>
+                        </View>
+                    )
+                }}
+                keyExtractor={(item) => item.menu_id?.toString()}
+                ListEmptyComponent={() => activeTab === 'Ada' ? <Text style={{color:'white', textAlign: 'center'}}>Semua item tidak tersedia</Text> 
+                : <Text style={{color:'white', textAlign:'center'}}>Semua item tersedia</Text>}
+                contentContainerStyle={{paddingBottom:80}}
+            />
 
 
             {showSidebar && (
-                <CustomSidebar onClose = { () => setShowSidebar(false) } />
+                <CustomSidebar onClose = { () => setShowSidebar(false) }>
+                    {/* add item and remove item specific only for menu manager */}
+                </CustomSidebar>
             )}
         </View> 
     );
@@ -125,10 +167,11 @@ const styles = StyleSheet.create({
     buttonContainer: { 
         flexDirection:'row',
         backgroundColor:'black',
+        height: 55
     },
     pageButton: {
-        marginHorizontal: 4, 
-        marginVertical: 8, 
+        marginHorizontal: 3, 
+        marginVertical: 7, 
     },
     activeButton: {
         backgroundColor: '#4CAF50'
@@ -141,10 +184,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#fff',
-        marginHorizontal: 15,
-        marginVertical: 10,
+        marginHorizontal: 5,
+        marginVertical: 8,
         borderRadius: 8,
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
         borderWidth: 1,
         borderColor: '#ddd',
     },
@@ -152,4 +195,33 @@ const styles = StyleSheet.create({
         marginRight: 8,
         color: '#999',
     },
+    menuItemContainer: {
+        borderBottomWidth: 1,
+        width: '100%',
+        borderBottomColor: 'white',
+        flexDirection: 'row',
+    },
+    operationIcons: {
+        marginTop:5, 
+        borderWidth:3, 
+        borderColor:'white', 
+        borderRadius: 40,
+        backgroundColor: 'white',
+        marginRight: 10,
+        marginLeft: 3,
+        // margin:6
+        paddingLeft: 1.5
+    }
 });
+
+const headerStyles = StyleSheet.create({
+    headerContainer: {
+        marginVertical: 3
+    },
+    headerTitle: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 20,
+        marginTop: 10
+    },
+})

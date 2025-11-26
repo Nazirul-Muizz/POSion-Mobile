@@ -1,10 +1,9 @@
 // app/login.tsx
-import { View, StyleSheet } from 'react-native';
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '@/lib/supabase-client';
 import Auth from '@/component/Auth';
+import { supabase } from '@/lib/supabase-client';
 import { Session } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
  
 export default function Login() {
   const [session, setSession] = useState<Session | null>(null);

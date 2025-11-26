@@ -1,13 +1,13 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type PopupProps = {
     message:string,
     visible: boolean,
     onConfirm: () => void,
-    onCancel: () => void
+    onCancel: () => void,
 }
 
-export default function ConfirmPopup({ visible, message, onConfirm, onCancel }: PopupProps) {
+export default function ConfirmPopup({ visible, message, onConfirm, onCancel}: PopupProps) {
   return (
     <Modal
       transparent
@@ -19,7 +19,7 @@ export default function ConfirmPopup({ visible, message, onConfirm, onCancel }: 
         <View style={styles.modalBox}>
           <Text style={styles.modalTitle}>Confirmation</Text>
           <Text style={styles.modalMessage}>{message}</Text>
-
+          
           <View style={styles.buttonRow}>
             <TouchableOpacity
               onPress={onCancel}

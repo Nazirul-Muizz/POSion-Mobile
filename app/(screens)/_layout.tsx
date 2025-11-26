@@ -1,7 +1,7 @@
-import { StyleSheet, View, Text, StatusBar } from "react-native";
-import { Slot, usePathname } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import FooterNavigation from "@/component/FooterNavi";
+import { Slot, usePathname } from "expo-router";
+import { StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ScreenLayout() {
     const pathname = usePathname();

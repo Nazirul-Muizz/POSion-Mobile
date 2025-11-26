@@ -1,16 +1,17 @@
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { JSX } from "react";
+import { ROLES } from "@/constants/Roles";
 import { useAuth } from "@/context/authContext";
-import {ROLES} from "@/constants/Roles";
+import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from "expo-router";
+import { JSX } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Page = {
     label: string;
     icon: JSX.Element;
-    path: '/Order' | '/MenuManager' | '/UserProfile';
+    path: '/OrderServer' | '/MenuManager' | '/UserProfile' | '/OrderClient';
 }
 
 export default function FooterNavigation() {
@@ -19,20 +20,21 @@ export default function FooterNavigation() {
 
     if (isRoleLoading || !userRole) return null;
 
-
     const rolePages = {
         [ROLES.MANAGER]: [
-            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
-            { label: 'Menu', icon: <MaterialIcons name="menu-book" size={24} color="white" />, path: '/MenuManager' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Tambah Order', icon: <Entypo name="add-to-list" size={24} color="white" style={styles.icon}/>, path: '/OrderClient' },
+            { label: 'Menu', icon: <MaterialIcons name="menu-book" size={24} color="white" style={styles.icon}/>, path: '/MenuManager' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
         ],
         [ROLES.EMPLOYEE_REST]: [
-            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Tambah Order', icon: <Entypo name="add-to-list" size={24} color="white" style={styles.icon}/>, path: '/OrderClient' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
         ],
         [ROLES.EMPLOYEE_STALL]: [
-            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" />, path: '/Order' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" />, path: '/UserProfile' },
+            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
         ],
     };
 
@@ -41,14 +43,15 @@ export default function FooterNavigation() {
     return pages.length === 0 ? null : (
     <View style={styles.footer}>
         {pages.map((page) => (
-        <TouchableOpacity key={page.label} onPress={() => router.replace(page.path as Page["path"])}>
-            {page.icon}
-            <Text style={styles.label}>{page.label}</Text>
-        </TouchableOpacity>
+            <View style={ styles.menuFooter } key={page.label}>
+                <TouchableOpacity key={page.label} onPress={() => router.replace(page.path as Page["path"])} >
+                    {page.icon}
+                    <Text style={styles.label}>{page.label}</Text>
+                </TouchableOpacity>
+            </View>
         ))}
     </View>
     );
-
 }
 
 const styles = StyleSheet.create({
@@ -61,8 +64,6 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#333',
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
     zIndex: 10,
     elevation: 10,
   },
@@ -77,5 +78,12 @@ const styles = StyleSheet.create({
   },
   iconInactive: {
 
-  }
+  },
+  menuFooter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5
+  },
+  icon: { alignSelf: 'center'}
 });

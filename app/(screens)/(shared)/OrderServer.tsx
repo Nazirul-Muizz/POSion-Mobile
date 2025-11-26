@@ -1,13 +1,10 @@
-import { StyleSheet, View, Text, TouchableOpacity, StatusBar, FlatList, ListRenderItemInfo, TextStyle } from "react-native";
-import { useAuth } from "@/context/authContext";
-import { useEffect, useMemo, useState } from "react";
-import CustomSideBar from "@/component/CustomSidebar";
-import Entypo from '@expo/vector-icons/Entypo';
-import Animated, { LinearTransition } from 'react-native-reanimated';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { order } from "@/data/order";
 import CustomButton from "@/component/CustomButton";
-import { registerForPushNotificationsAsync, scheduleNewOrderNotification } from "@/component/PushNotification";
+import CustomSideBar from "@/component/CustomSidebar";
+import { registerForPushNotificationsAsync } from "@/component/PushNotification";
+import Entypo from '@expo/vector-icons/Entypo';
+import { useEffect, useMemo, useState } from "react";
+import { ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated from 'react-native-reanimated';
 
 interface OrderItemType {
     id: number,
@@ -19,63 +16,7 @@ interface OrderItemType {
 export default function OrderManagement() {
     const [showSidebar, setShowSidebar] = useState(false);
     const [orderItem, setOrderItem] = useState<OrderItemType[]>([]);
-    const [activeTab, setActiveTab] = useState<'current' | 'logs'>('current');
-
-    const profile = useAuth();
-    const userName = profile.user?.name;
-
-    console.log(`user name: ${userName}`);
-
-    useEffect( () => {
-        const fetchData = async () => {
-            try {
-                const jsonValue = await AsyncStorage.getItem("OrderItem");
-                let storageOrder: OrderItemType[] = jsonValue != null ? JSON.parse(jsonValue) : null;
-
-                const newOrders = order.filter(item => 
-                    !storageOrder.some(storedItem => storedItem.id === item.id)
-                )
-
-                if (newOrders.length > 0) {
-
-                    scheduleNewOrderNotification(newOrders.length)
-                    // Merge new orders with stored orders (if storage was NOT empty)
-                    if (jsonValue != null) storageOrder = [...storageOrder, ...newOrders];
-                    
-                    // 3. Save the merged list back to storage immediately
-                    const jsonValueMerged = JSON.stringify(storageOrder);
-                    await AsyncStorage.setItem("orderItem", jsonValueMerged);
-                }
-
-                const finalOrderList = storageOrder.sort((a, b) => a.id - b.id);
-
-                setOrderItem(finalOrderList);
-
-                console.log(`Total items loaded into state: ${finalOrderList.length}`);
-
-            } catch(e) {
-                console.error(e);
-                setOrderItem(order.sort((a, b) => a.id - b.id));
-            }
-        }
-
-        fetchData();
-
-    }, [order])
-
-    useEffect( () => {
-        const storeData = async () => {
-            try {
-                const jsonValue = JSON.stringify(orderItem.sort((a, b) => a.id - b.id));
-                await AsyncStorage.setItem("OrderItem", jsonValue);
-            } catch(e) {
-                console.error(e)
-            }
-        }
-
-        if (orderItem.length > 0) storeData();
-
-    }, [orderItem])
+    const [activeTab, setActiveTab] = useState<'Semasa' | 'Log'>('Semasa');
 
     useEffect(() => {
         registerForPushNotificationsAsync();
@@ -84,8 +25,8 @@ export default function OrderManagement() {
     const filteredOrders = useMemo( () => {
         let result: OrderItemType[] = [];
 
-        if (activeTab === 'current') return orderItem.filter(item => item.isPrepared === false)
-        else if (activeTab === 'logs') return orderItem.filter(item => item.isPrepared === true)
+        if (activeTab === 'Semasa') return orderItem.filter(item => item.isPrepared === false)
+        else if (activeTab === 'Log') return orderItem.filter(item => item.isPrepared === true)
 
         console.log(`Filtered items showing on '${activeTab}' tab: ${result.length}`);
         return result;
@@ -111,7 +52,7 @@ export default function OrderManagement() {
                     <Text style={styles.orderItemName}>Order #{item.id}: {item.item}</Text>
                     <Text style={[
                         styles.orderItemStatus, 
-                        { color: item.isPrepared ? '#4CAF50' : '#FF9800' } // Green for log, Orange for current
+                        { color: item.isPrepared ? '#4CAF50' : '#FF9800' } // Green for log, Orange for Semasa
                     ]}>
                         {item.isPrepared ? "LOGGED" : "PENDING"}
                     </Text>
@@ -141,25 +82,25 @@ export default function OrderManagement() {
                 <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
                     <Entypo name="menu" size={36} color="white" />
                 </TouchableOpacity>
-                <Text style={ styles.title } >Order Management</Text>
+                <Text style={ styles.title } >Pesanan</Text>
             </View>
             <View style={styles.buttonContainer}>
                 <CustomButton 
-                    title="Current" 
-                    onPress={() => setActiveTab('current')}  
-                    textStyle={ activeTab === 'current' ? { color: 'white' } : { color: 'black' }}
+                    title="Semasa" 
+                    onPress={() => setActiveTab('Semasa')}  
+                    textStyle={ activeTab === 'Semasa' ? { color: 'white' } : { color: 'black' }}
                     style={[
                         styles.pageButton, 
-                        activeTab === 'current' ? styles.activeButton : styles.inactiveButton
+                        activeTab === 'Semasa' ? styles.activeButton : styles.inactiveButton
                     ]}
                 />
                 <CustomButton 
-                    title="Logs" 
-                    onPress={() => setActiveTab('logs')} 
-                    textStyle={ activeTab === 'logs' ? { color: 'white' } : { color: 'black' }}
+                    title="Log" 
+                    onPress={() => setActiveTab('Log')} 
+                    textStyle={ activeTab === 'Log' ? { color: 'white' } : { color: 'black' }}
                     style={[
                         styles.pageButton, 
-                        (activeTab === 'logs' ? styles.activeButton : styles.inactiveButton)
+                        (activeTab === 'Log' ? styles.activeButton : styles.inactiveButton)
                     ]}
                 />
             </View>
@@ -172,9 +113,9 @@ export default function OrderManagement() {
                 contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
                 ListEmptyComponent={() => (
                     <Text style={styles.emptyText}>
-                        {activeTab === 'current' 
-                            ? "Great job! No current pending orders."
-                            : "No orders have been logged yet."
+                        {activeTab === 'Semasa' 
+                            ? "Tiada pesanan baru buat masa ini"
+                            : "Tiada pesanan dalam log"
                         }
                     </Text>
                 )}
@@ -198,7 +139,8 @@ const styles = StyleSheet.create({
         fontWeight:'bold',
         color:'white',
         marginHorizontal:35,
-        padding: 10
+        padding: 10,
+        flex: 2
 
     },
     subtitle: {
@@ -209,7 +151,8 @@ const styles = StyleSheet.create({
     menuButton: {
         justifyContent:'flex-start',
         alignItems:'flex-start',
-        padding:5
+        padding:5,
+        flex: 1
     },
     // STYLES for the tab buttons
     pageButton: {
@@ -241,7 +184,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     logCard: {
-        // Style for LOGS (Prepared)
+        // Style for Log (Prepared)
         backgroundColor: '#e8f5e9', // Very light green background
         padding: 15,
         borderRadius: 8,

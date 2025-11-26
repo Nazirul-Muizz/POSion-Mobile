@@ -1,0 +1,1 @@
+export const carb = ['Nasi putih', 'Nasi Impit', 'Mee kuning', 'Bihun', 'Kosong'];

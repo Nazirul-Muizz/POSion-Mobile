@@ -1,17 +1,15 @@
 // app/home.tsx
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
-import { useState } from "react";
-import { useAuth } from '@/context/authContext';
-import { useRouter } from 'expo-router';
-import Entypo from '@expo/vector-icons/Entypo';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import IconFrame  from "@/component/IconFrame";
-import { Ionicons } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons';
 import CustomSidebar from '@/component/CustomSidebar';
+import IconFrame from "@/component/IconFrame";
+import { useAuth } from '@/context/authContext';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import Entypo from '@expo/vector-icons/Entypo';
+import { useRouter } from 'expo-router';
+import { useState } from "react";
+import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { username } = useAuth();
   const router = useRouter();
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -21,10 +19,10 @@ export default function HomeScreen() {
             <Entypo name="menu" size={36} color="white" />
         </TouchableOpacity>
         <View style={styles.textContainer}>
-            <Text style={ styles.title }>Welcome {user?.name}</Text>
-            <Text style={ styles.subtitle }>Choose your workplace</Text>
+            <Text style={ styles.title }>Selamat Datang {username}</Text>
+            <Text style={ styles.subtitle }>Pilih tempat kerja anda</Text>
             <View style={{flexDirection:'row'}}>
-                <IconFrame IconComponent={Ionicons} name='restaurant' title='Restaurant' pressButton = {() => {router.push('/(screens)/(shared)/Order')}} />
+                <IconFrame IconComponent={Ionicons} name='restaurant' title='Restaurant' pressButton = {() => {router.push('/(screens)/(shared)/OrderServer')}} />
                 <IconFrame IconComponent={MaterialIcons} name='table-restaurant' title='Stall' pressButton = {() => {router.push('/(screens)/BlankPage')}} />
             </View>
         </View>

@@ -1,9 +1,8 @@
-import { useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
-import { supabase } from '../lib/supabase-client';
-import { TextInput } from 'react-native';
-import CustomButton from './CustomButton';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { supabase } from '../lib/supabase-client';
+import CustomButton from './CustomButton';
 
 
 export default function Auth() {
@@ -27,23 +26,25 @@ export default function Auth() {
           password: password,
         })
 
-        console.log(`data: ${data.user?.email}`)
+        console.log(`data: ${data.user?.email}`);
+
+        console.log("SUPABASE RESPONSE:", data, error);
+
 
         if (error) {
           Alert.alert('Sign in Error', error.message)
+          console.error(`Sign in Error in Auth: ${error}`)
+          setLoading(false) // Add a return and setLoading here for the auth error
+        } else {
+          //Alert.alert('Sign Up Successful!', 'Please login to proceed into the app')
+          console.log(`confirmed sign in successful`)
         }
-
-        // try {
-        //   await assignEmployeeUUID();
-        // } catch (e) {
-        //   console.error("UUID assignment failed:", e);
-        // }
         
     } catch(e) {
         console.error(e)
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false)
   }
 
   async function signUpWithEmail() {
@@ -72,7 +73,7 @@ export default function Auth() {
         console.error(`Sign Up Error in Auth: ${error}`)
         setLoading(false) // Add a return and setLoading here for the auth error
       } else {
-        Alert.alert('Sign Up Successful!', 'Please login to proceed into the app')
+        //Alert.alert('Sign Up Successful!', 'Please login to proceed into the app')
         console.log(`confirmed sign up successful`)
       }
 
@@ -118,15 +119,17 @@ export default function Auth() {
       <View style={[styles.buttonContainer, styles.mt20]}>
         <CustomButton 
           title='Login' 
-          onPress={() => signInWithEmail()}
+          onPress={signInWithEmail}
           textStyle={ {color: 'white'} }
           style={ styles.button }
+          //onAnimationComplete={signInWithEmail}
         />
         <CustomButton 
           title='Register' 
-          onPress={() => signUpWithEmail()}
+          onPress={signUpWithEmail}
           textStyle={ {color: 'white'} }
           style={ styles.button }
+          //onAnimationComplete={signUpWithEmail}
         />     
       </View>
     </View>

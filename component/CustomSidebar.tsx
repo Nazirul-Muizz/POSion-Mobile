@@ -1,10 +1,9 @@
 // CustomSidebar.tsx
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Modal, Animated, Easing } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "expo-router";
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Easing, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ConfirmPopup from './ConfirmPopup';
 
 const screenWidth = Dimensions.get('window').width;
@@ -12,9 +11,10 @@ const sidebarWidth = screenWidth * 0.6;
 
 interface Props {
   onClose: () => void;
+  children?: React.ReactNode;
 }
 
-export default function CustomSidebar({ onClose }: Props) {
+export default function CustomSidebar({ onClose, children }: Props) {
     const { logout } = useAuth();
     const router = useRouter();
     const [showConfirm, setShowConfirm] = useState(false);
@@ -39,10 +39,10 @@ export default function CustomSidebar({ onClose }: Props) {
         };
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setShowConfirm(false);
         console.log('User confirmed logout');
-        logout();
+        await logout();
         router.replace('/(auth)/Register');
     };
 
@@ -70,6 +70,7 @@ export default function CustomSidebar({ onClose }: Props) {
                 <TouchableWithoutFeedback>
                     <View style={styles.sidebar}>
                         <Text style={styles.title}>Menu</Text>
+                        {children}
                         <TouchableOpacity onPress={() => {}} > 
                             {/* <>TODO: Customize the Theme Preference using OnPress</> */}
                             <Text style={styles.menuItem}>Theme Preference</Text>

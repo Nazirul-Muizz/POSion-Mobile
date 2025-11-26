@@ -1,24 +1,22 @@
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from "react-native";
-import { profile } from "@/data/users";
-import Entypo from '@expo/vector-icons/Entypo';
-import { useAuth } from "@/context/authContext";
-import { useState } from "react";
 import CustomSidebar from "@/component/CustomSidebar";
+import { useAuth } from "@/context/authContext";
+import Entypo from '@expo/vector-icons/Entypo';
+import { useState } from "react";
+import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function UserProfile() {
-    const {user, userRole} = useAuth();
-    const userName = user?.name;
+    const {user, username, userRole} = useAuth();
+    const userName = username;
     const userEmail = user?.email;
     const [showSidebar, setShowSidebar] = useState(false);
 
     return (
         <View style={{ flex:1, backgroundColor:'black' }}>
-            <View style={{ flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
+            <View style={{ flexDirection:'row', backgroundColor:'black'}} >
                 <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
                     <Entypo name="menu" size={36} color="white" />
                 </TouchableOpacity>
-            <Text style={ styles.title }>User Profile</Text>
+                <Text style={ styles.title }>Pengguna</Text>
             </View>
             <View style={{ flex:1, backgroundColor:'white', justifyContent:'center', alignItems:'center'}}>
                 <Entypo name="user" size={200} color="black" style={ styles.iconFrame }/>
@@ -39,7 +37,8 @@ const styles = StyleSheet.create({
         flexDirection:'column',
         justifyContent:'flex-start',
         alignItems:'flex-start',
-        padding:5
+        padding:5,
+        flex: 1
     },
     iconFrame: {
         width: 210,
@@ -59,8 +58,10 @@ const styles = StyleSheet.create({
         fontSize:17,
         fontWeight:'bold',
         color:'white',
-        marginHorizontal:60,
-        padding: 10
+        //marginHorizontal:60,
+        padding: 10,
+        //textAlign: 'center',
+        flex: 2
 
     },
     text: {

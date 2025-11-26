@@ -1,22 +1,21 @@
-import { useRef, useState, useEffect } from 'react';
-import { 
-  Text, 
-  StyleSheet, 
-  Pressable, 
-  Animated, 
-  ViewStyle, 
-  TextStyle, 
+import { useRef, useState } from 'react';
+import {
+  Animated,
   GestureResponderEvent,
+  Pressable,
   StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  ViewStyle,
 } from 'react-native';
 
 import { ButtonColors } from '@/constants/Colors';
 
 interface CustomButtonProps {
     title: string;
-    onPress: () => void;
-    onAnimationComplete? : (event: GestureResponderEvent) => void;
-    //variant?: 'primary' | 'secondary'; 
+    onPress?: () => void;
+    onAnimationComplete? : (event?: GestureResponderEvent) => void; 
     style?: StyleProp<ViewStyle>;
     textStyle?: TextStyle;
     disabled?: boolean;
@@ -25,7 +24,7 @@ interface CustomButtonProps {
 export default function CustomButton({
     title,
     onPress, 
-    onAnimationComplete, // NEW PROP
+    onAnimationComplete, 
     style,
     textStyle,
     disabled = false,
@@ -33,15 +32,17 @@ export default function CustomButton({
     const scaleAnim = useRef(new Animated.Value(1)).current; // For shrinking animation
     const [isPressed, setIsPressed] = useState(false);
     const colors = ButtonColors;
+    const shouldAnimate = !!onAnimationComplete;
 
     // --- Animation Handlers ---
   const handlePressIn = () => {
     setIsPressed(true);
+
     Animated.spring(scaleAnim, {
-      toValue: 0.98, // Shrink slightly
+      toValue: 0.95, // Shrink slightly
       useNativeDriver: true,
       friction: 5,
-    }).start();
+    }).start()
   };
 
   const handlePressOut = (event: GestureResponderEvent) => {
@@ -60,7 +61,7 @@ export default function CustomButton({
         onAnimationComplete(event);
       } else {
         // Otherwise, fall back to the primary onPress function.
-        onPress(); 
+        onPress?.(); 
       }
     });
   };
@@ -77,14 +78,21 @@ export default function CustomButton({
           }
       }
   }
+
+  const applyAlpha = (color: string | undefined, alpha = "A0") => {
+    if (!color || typeof color !== "string") return undefined;
+    return `${color}${alpha}`;
+  };
+
   
   // --- Dynamic Styles ---
   const dynamicButtonStyles: ViewStyle = {
+
     // 1. Oval Shape (using large borderRadius relative to height)
     borderRadius: 50, 
     // 2. Dynamic Background Color: Use passed color if available, otherwise use default/pressed color
     backgroundColor: passedBackgroundColor
-        ? (isPressed ? `${passedBackgroundColor}A0` : passedBackgroundColor) // Use custom color, slightly darker on press
+        ? (isPressed ? applyAlpha(passedBackgroundColor) : passedBackgroundColor) // Use custom color, slightly darker on press
         : (isPressed ? colors.pressedBackground : colors.baseBackground), // Use default colors
     // 3. Shadow
     shadowColor: colors.shadowColor,
@@ -105,12 +113,12 @@ export default function CustomButton({
   return (
     <Animated.View style={[animatedStyle, styles.animatedWrapper, { borderRadius: 50, overflow: 'hidden' }, style]}>
       <Pressable
-        onPressIn={handlePressIn}
+        onPressIn={shouldAnimate ? handlePressIn : undefined}
         // Changed onPressOut to handle both the animation and the onPress prop
-        onPressOut={handlePressOut} 
+        onPressOut={shouldAnimate ? handlePressOut : undefined} 
         disabled={disabled}
         // CRITICAL CHANGE: We use the simpler onPress prop to define the default action
-        onPress={onPress} 
+        onPress={shouldAnimate ? undefined : onPress} 
         style={[
           styles.button, 
           dynamicButtonStyles, 

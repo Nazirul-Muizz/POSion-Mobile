@@ -1,12 +1,13 @@
-import { View, StyleSheet, Text, Animated, TouchableOpacity } from "react-native";
-import CustomButton from "@/component/CustomButton";
-import CustomSidebar from "@/component/CustomSidebar";
-import { menu, addOns } from "@/data/menu";
-import { useState, useEffect } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
+import { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+interface MainTemplatepProps {
+    title: string,
+    children?: React.ReactNode
+}
 
-export default function MainTemplate() {
+export default function MainTemplate({children, title}: MainTemplatepProps) {
     const [showSidebar, setShowSidebar] = useState(false);
 
     return (
@@ -15,14 +16,9 @@ export default function MainTemplate() {
                 <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
                     <Entypo name="menu" size={36} color="white" />
                 </TouchableOpacity>
-            <Text style={ styles.title }>Menu Management</Text>
+            <Text style={ styles.title }>{title}</Text>
             </View>
-            <View style={{ flex:1, backgroundColor: 'white'}}>
-
-            </View>
-            {showSidebar && (
-                <CustomSidebar onClose = { () => setShowSidebar(false) } />
-            )}
+                {children}
         </View> 
     );
 };
