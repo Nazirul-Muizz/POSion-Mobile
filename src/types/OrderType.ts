@@ -1,4 +1,4 @@
-import { MenuType } from "@/services/menuServices";
+import { MenuType } from "@/types/MenuType";
 
 export type OrderItemState = MenuType & {
     quantity: number

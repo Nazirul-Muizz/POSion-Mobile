@@ -1,7 +1,7 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { supabase } from '../lib/supabase-client';
+import { supabase } from '../../lib/supabase-client';
 import CustomButton from './CustomButton';
 
 

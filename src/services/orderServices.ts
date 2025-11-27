@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase-client";
 import { OrderItemPayload } from "@/types/OrderType";
+import { supabase } from "../../lib/supabase-client";
 
 export interface OrderProps {
     order_id: string,

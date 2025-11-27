@@ -1,4 +1,5 @@
-import { fetchMenu, fetchTableId, MenuType } from "@/services/menuServices";
+import { fetchMenu, fetchTableId } from "@/services/menuServices";
+import { MenuType } from "@/types/MenuType";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 type SectionData = {
@@ -28,7 +29,7 @@ export const useMenuQuery = <R = MenuType[]> (options?: useMenuQueryOptions<R> )
         staleTime: 5 * 60 * 1000, // 5 MINUTES
         ...options
     })
-}
+};
 
 export const useMenuSections = ( ) => {
     const { data: menuList, isLoading: isMenuLoading, isFetching: isMenuFetching } = useMenuQuery({

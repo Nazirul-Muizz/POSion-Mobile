@@ -3,18 +3,17 @@ import CustomButton from "@/component/CustomButton";
 import CustomDropdown from "@/component/CustomDropdown";
 import FooterCart from "@/component/FooterCart";
 import AnimatedPressableIcon from "@/component/InteractivePressable";
+import ShowCartItemPopup from "@/component/ShowCartPopup";
 
 import { carb } from "@/constants/Carb";
 import { dineOption } from "@/constants/DineOptions";
 
-import { CartItem, CatProps, DrinksCategoryProps, FoodCategoryProps, OrderItemState } from "@/types/OrderType";
+import { OrderItemState } from "@/types/OrderType";
 
-import { useMenuItemQuery, useTableQuery } from "@/hooks/MenuHook";
-import { useSubmitOrder } from "@/hooks/OrderHook";
-import { MenuType } from "@/services/menuServices";
-import { useDropdownStore, useOrderItemStore } from "@/store/StatesStore";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, FlatList, ListRenderItemInfo, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTableQuery } from "@/hooks/MenuHook";
+import { useHandleCart, useModalVisibility, useOrderFlow, useShowFooterCart, useSubmitOrder } from "@/hooks/OrderHook";
+import { useOrderItemStore } from "@/store/StatesStore";
+import { FlatList, ListRenderItemInfo, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -24,136 +23,29 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 export default function AddOrder() {
-    const [currentCat, setCurrentCat] = useState<CatProps>('Makanan');
-    const [currentSubCat, setSubCurrentCat] = useState<FoodCategoryProps | DrinksCategoryProps>('Mee Bandung');
-    const [showPopupConfig, setShowPopupConfig] = useState(false);
-    const [orderItem, setOrderItem] = useState<OrderItemState | null>(null);
-    const [orderQuantities, setOrderQuantities] = useState<Record<string, number>>({});
-
     //global states: import from zustand store
-    const { selectedCarb, setSelectedCarb, comment, setComment } = useOrderItemStore(); 
-    const { selectedOption, setSelectedOption } = useDropdownStore();
+    const { comment, setComment } = useOrderItemStore(); 
+    const { isCartModalVisible, openCartModal, closeCartModal } = useModalVisibility();
 
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const { handleConfirmPress, handleQuantityChange, cart, orderQuantities} = useHandleCart();
+
+    const { 
+        currentCat,
+        setCurrentCat,
+        orderItem,
+        setShowPopupConfig,
+        setOrderItem,
+        menuItemsWithOrder,
+        handlePress,
+        currentSubCat,
+        showPopupConfig
+    } = useOrderFlow(orderQuantities);
+
+    const isFootCartShown = useShowFooterCart(cart);
 
     const { handleSubmit } = useSubmitOrder(cart);
 
-    // custom hook
     const tableNumber = useTableQuery();
-    const filteredMenu = useMenuItemQuery(currentSubCat);
-
-
-    const handleQuantityChange = useCallback( (item: MenuType, increment: boolean,) => {
-        const itemId = item.menu_id.toString();
-
-        setOrderQuantities(previousQuantities => {
-            const currentQuantity = previousQuantities[itemId] ?? 0;
-            const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
-
-            const updated = { ...previousQuantities };
-            if (newQuantity > 0) updated[itemId] = newQuantity;
-            else delete updated[itemId];
-            return updated;
-            });
-
-        setCart(prevCart => {
-            const index = prevCart.findIndex(c => c.menu_id === item.menu_id);
-            if (increment) {
-                if (index === -1) {
-                    // Add a new unit
-                    return [...prevCart, {
-                        ...item,
-                        selectedCarb: "",
-                        comment: "",
-                        quantity: 1
-                    }];
-                } else {
-                // item exists => increment
-                const newCart = [...prevCart];
-                newCart[index] = {
-                    ...newCart[index],
-                    quantity: newCart[index].quantity + 1
-                };
-                return newCart;
-                }
-            } 
-            
-            // Remove a unit - FILO
-            const reversedIndex = [...prevCart]
-                .reverse()
-                .findIndex(c => c.menu_id === item.menu_id);
-
-            if (reversedIndex !== -1) {
-                const actualIndex = prevCart.length - 1 - reversedIndex;
-                const newCart = [...prevCart];
-                newCart.splice(actualIndex, 1);
-                return newCart;
-            }
-
-            return prevCart;
-        });
-
-        
-    }, []);
-
-    const handleConfirmPress = () => { 
-        if ((orderItem?.category_name === 'Bakso' || orderItem?.category_name === 'Sup') && !selectedOption['carbo']) {
-            Alert.alert('Ralat', 'Sila pilih 1 (mee kuning/nasi putih/nasi impit/bihun)');
-            return;
-        }
-        
-        if (orderItem) {
-            const carbOption = selectedOption['carbo'] || "";
-            handleQuantityChange(orderItem, true);
-
-            setCart(prev => {
-                const reversedIndex = [...prev]
-                    .reverse()
-                    .findIndex(i => i.menu_id === orderItem.menu_id);
-
-                if (reversedIndex === -1) return prev;
-
-                const actualIndex = prev.length - 1 - reversedIndex;
-
-                const newCart = [...prev];
-                newCart[actualIndex] = {
-                    ...newCart[actualIndex],
-                    selectedCarb: carbOption,
-                    comment: comment
-                };
-
-                console.log("Cart (INSIDE CART SETTER):", JSON.stringify(newCart, null, 2));
-                return newCart;
-            });
-
-        }   
-        
-        // reset after confirm
-        setSelectedCarb('');
-        setComment('')
-
-        setSelectedOption('carbo', '');
-
-        setShowPopupConfig(false);            
-    }
-
-    // necessary to display the quantity into the flatlist
-    const menuItemsWithOrder: OrderItemState[] = useMemo( () => {
-        return (filteredMenu || []).map( item => ({
-            ...item,
-            quantity: orderQuantities[item.menu_id.toString()] || 0
-        }))
-    }, [filteredMenu, orderQuantities]);
-
-    //console.log(filteredMenu);
-    //#fffbe6
-    const handlePress = (subCat: FoodCategoryProps | DrinksCategoryProps) => {
-        setSubCurrentCat(subCat);
-    }
-
-    useEffect( () => {
-        currentCat === 'Makanan' ? setSubCurrentCat('Mee Bandung') : setSubCurrentCat('Minuman Panas')
-    }, [currentCat]);
 
     const renderItem = ({item}:ListRenderItemInfo<OrderItemState>) => {
         const noConfig = ['Add Ons'].includes(item.category_name);
@@ -351,7 +243,7 @@ export default function AddOrder() {
                         <ConfigPopup
                             visible={showPopupConfig} //TODO: visibile depends on onConfirm key. When user click confirm, it must return false
                             onCancel={() => setShowPopupConfig(false)}
-                            onConfirm={() => handleConfirmPress()}
+                            onConfirm={() => handleConfirmPress(orderItem, () => setShowPopupConfig(false))}
                             title="Tambah Item"
                         >
                             { (currentSubCat === 'Sup' || currentSubCat === 'Bakso') && (
@@ -382,7 +274,9 @@ export default function AddOrder() {
 
             </View>
 
-            {cart.length > 0 && <FooterCart />}
+            {/* {cart.length > 0 && <FooterCart />} */}
+            <FooterCart openCartModal={openCartModal} isFooterCartShown={isFootCartShown}/>
+            <ShowCartItemPopup cart={cart} isCartModalVisible={isCartModalVisible} closeCartModal={closeCartModal}/>
                     
         </View>
     )

@@ -1,9 +1,9 @@
 // app/login.tsx
 import Auth from '@/component/Auth';
-import { supabase } from '@/lib/supabase-client';
 import { Session } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { supabase } from '../../../lib/supabase-client';
  
 export default function Login() {
   const [session, setSession] = useState<Session | null>(null);

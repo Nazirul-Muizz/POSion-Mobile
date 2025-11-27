@@ -2,10 +2,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import Animated, { useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-export default function FooterCart() {
+export default function FooterCart({openCartModal, isFooterCartShown} : {openCartModal: () => void, isFooterCartShown: boolean}) {
+
+    if (!isFooterCartShown) return;
+
     return (
         <View style={ styles.mainContainer }>
-            <TouchableOpacity style={{ padding: 10, flexDirection: 'row', justifyContent:'center' }}>
+            <TouchableOpacity onPress={openCartModal} style={{ padding: 10, flexDirection: 'row', justifyContent:'center' }}>
                 <View style={{ marginRight: 10, alignSelf:'auto' }}>
                     <AntDesign name="shopping-cart" size={27} color="black" />
                 </View>
