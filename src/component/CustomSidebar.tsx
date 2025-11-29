@@ -1,5 +1,6 @@
 // CustomSidebar.tsx
 import { useAuth } from "@/context/authContext";
+import { SidebarProps } from "@/types/UiProps";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -9,12 +10,7 @@ import ConfirmPopup from './ConfirmPopup';
 const screenWidth = Dimensions.get('window').width;
 const sidebarWidth = screenWidth * 0.6;
 
-interface Props {
-  onClose: () => void;
-  children?: React.ReactNode;
-}
-
-export default function CustomSidebar({ onClose, children }: Props) {
+export default function CustomSidebar({ onClose, children }: SidebarProps) {
     const { logout } = useAuth();
     const router = useRouter();
     const [showConfirm, setShowConfirm] = useState(false);

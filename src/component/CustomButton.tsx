@@ -3,23 +3,14 @@ import {
   Animated,
   GestureResponderEvent,
   Pressable,
-  StyleProp,
   StyleSheet,
   Text,
-  TextStyle,
-  ViewStyle,
+  ViewStyle
 } from 'react-native';
 
 import { ButtonColors } from '@/constants/Colors';
+import { CustomButtonProps } from '@/types/UiProps';
 
-interface CustomButtonProps {
-    title: string;
-    onPress?: () => void;
-    onAnimationComplete? : (event?: GestureResponderEvent) => void; 
-    style?: StyleProp<ViewStyle>;
-    textStyle?: TextStyle;
-    disabled?: boolean;
-};
 
 export default function CustomButton({
     title,

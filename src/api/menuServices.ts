@@ -1,5 +1,5 @@
 import { supabase } from "../../lib/supabase-client";
-import { discountDetails, MenuType, tableRow } from '../types/MenuType';
+import { discountDetails, MenuAvailability, MenuType, tableRow } from '../types/MenuType';
 
 export const fetchMenu = async (): Promise <MenuType[] | []> => {
     const { data, error } = await supabase
@@ -23,20 +23,28 @@ export const fetchTableId = async (): Promise<tableRow[]> => {
 
 export const fetchDiscount = async (): Promise<discountDetails[]> => {
     const { data, error } = await supabase
-        .from('')
+        .from('discount')
         .select('*')
+        .order('discount_id', {ascending: true});
     
     if (error) throw new Error('');
     
      return data as discountDetails[];
 }
 
-export const mutateMenu = async () => {
+export const mutateMenuAvailability = async ({isAvailable, menu_id}: MenuAvailability): Promise<MenuAvailability> => {
     const { data, error } = await supabase
-        .from('')
-        .update('')
+        .from('restaurant_menu')
+        .update({isAvailable: isAvailable})
+        .eq('menu_id', menu_id)
+        .select()
     
-    if (error) return {success:false, error: error.message}
+    if (error) throw new Error(error.message)
     
-    return {success: true, data}    
+    if (!data || data.length === 0) {
+        throw new Error('Update successful, but no data was returned.');
+    }
+    
+    // Return the single updated item
+    return data[0];   
 }

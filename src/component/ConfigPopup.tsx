@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
     },
     buttonRow: { flexDirection: 'row', justifyContent: 'flex-end', marginVertical: 10, padding:10, gap: 5 },
     button: {borderRadius: 8, marginLeft: 10, padding: 10 },
-    cancelButton: { backgroundColor: '#999' },
-    confirmButton: { backgroundColor: '#e53935' },
+    cancelButton: { backgroundColor: '#e53935' },
+    confirmButton: { backgroundColor: '#4CAF50' },
     buttonText: { color: '#fff', fontSize: 13 },
 
 })

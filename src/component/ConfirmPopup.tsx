@@ -1,11 +1,6 @@
+import { PopupProps, } from '@/types/UiProps';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-type PopupProps = {
-    message:string,
-    visible: boolean,
-    onConfirm: () => void,
-    onCancel: () => void,
-}
 
 export default function ConfirmPopup({ visible, message, onConfirm, onCancel}: PopupProps) {
   return (

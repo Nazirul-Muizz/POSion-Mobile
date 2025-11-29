@@ -4,6 +4,7 @@ import CustomDropdown from "@/component/CustomDropdown";
 import FooterCart from "@/component/FooterCart";
 import AnimatedPressableIcon from "@/component/InteractivePressable";
 import ShowCartItemPopup from "@/component/ShowCartPopup";
+import SubmitDialog from "@/component/SubmitDialog";
 
 import { carb } from "@/constants/Carb";
 import { dineOption } from "@/constants/DineOptions";
@@ -11,8 +12,7 @@ import { dineOption } from "@/constants/DineOptions";
 import { OrderItemState } from "@/types/OrderType";
 
 import { useTableQuery } from "@/hooks/MenuHook";
-import { useHandleCart, useModalVisibility, useOrderFlow, useShowFooterCart, useSubmitOrder } from "@/hooks/OrderHook";
-import { useOrderItemStore } from "@/store/StatesStore";
+import { useDiscountQuery, useHandleCart, useModalVisibility, useOrderFlow, useSelectDiscount, useShowFooterCart, useSubmitOrder } from "@/hooks/OrderClientHook";
 import { FlatList, ListRenderItemInfo, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -22,12 +22,21 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
-export default function AddOrder() {
-    //global states: import from zustand store
-    const { comment, setComment } = useOrderItemStore(); 
+export default function AddOrder() { 
     const { isCartModalVisible, openCartModal, closeCartModal } = useModalVisibility();
 
-    const { handleConfirmPress, handleQuantityChange, cart, orderQuantities} = useHandleCart();
+    const { isDiscountModal, openDiscountModal, closeDiscountModal, handleSelection, selectedDiscount } = useSelectDiscount();
+
+    const { 
+        handleConfirmPress,
+        handleQuantityChange, 
+        cart, 
+        setCart,
+        orderQuantities, 
+        comment, 
+        setComment, 
+        handleDeleteCart, 
+    } = useHandleCart();
 
     const { 
         currentCat,
@@ -41,11 +50,16 @@ export default function AddOrder() {
         showPopupConfig
     } = useOrderFlow(orderQuantities);
 
+    const discounts = useDiscountQuery();
+
     const isFootCartShown = useShowFooterCart(cart);
 
-    const { handleSubmit } = useSubmitOrder(cart);
+    const { handleSubmit } = useSubmitOrder(cart, setCart, selectedDiscount);
 
     const tableNumber = useTableQuery();
+
+    // console.log('variationSummary in Order Client Page:', JSON.stringify(variationSummary, null, 2));
+    // console.log('cart in Order Client Page:', JSON.stringify(cart, null, 2));
 
     const renderItem = ({item}:ListRenderItemInfo<OrderItemState>) => {
         const noConfig = ['Add Ons'].includes(item.category_name);
@@ -122,7 +136,7 @@ export default function AddOrder() {
                 <View style={{flex:2}}>
                     <CustomButton 
                         title="Hantar"  
-                        onAnimationComplete={handleSubmit}
+                        onAnimationComplete={openDiscountModal}
                         style={{borderWidth:2, borderColor:'black', marginVertical:10, marginHorizontal:10, alignSelf:'flex-end'}}
                     />
                 </View>
@@ -270,13 +284,23 @@ export default function AddOrder() {
                         </ConfigPopup>
                     )}
 
+                    {isDiscountModal && (
+                        <SubmitDialog 
+                            data={discounts}
+                            onConfirm={() => handleSubmit( () => closeDiscountModal)}
+                            onClose={closeDiscountModal}
+                            selected={selectedDiscount}
+                            onSelect={handleSelection}
+                        />
+                    )}
+
                 </View>
 
             </View>
 
             {/* {cart.length > 0 && <FooterCart />} */}
             <FooterCart openCartModal={openCartModal} isFooterCartShown={isFootCartShown}/>
-            <ShowCartItemPopup cart={cart} isCartModalVisible={isCartModalVisible} closeCartModal={closeCartModal}/>
+            <ShowCartItemPopup data={cart} isCartModalVisible={isCartModalVisible} closeCartModal={closeCartModal} deleteCart={handleDeleteCart}/>
                     
         </View>
     )

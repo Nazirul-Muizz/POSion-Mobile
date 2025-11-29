@@ -1,17 +1,17 @@
-import { CartItem } from '@/types/OrderType';
-import { FlatList, ListRenderItemInfo, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CartItemPopupProps } from '@/types/UiProps';
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ShowCartItemPopup({
-    cart,
+    data,
     isCartModalVisible, 
-    closeCartModal
-}: {
-    cart: CartItem[], 
-    isCartModalVisible: boolean, 
-    closeCartModal: () => void
-}) {
+    closeCartModal,
+    deleteCart
+}: CartItemPopupProps) {
 
     if (!isCartModalVisible) return null;
+
+    // console.log('variationSummary in popup:', JSON.stringify(data, null, 2));
+    // console.log('cart in popup:', JSON.stringify(data, null, 2));
     
     return (
         <Modal
@@ -29,35 +29,41 @@ export default function ShowCartItemPopup({
                     
                     <View style={{height:'80%', marginVertical:10 }}>
                         <FlatList 
-                            data={cart}
-                            renderItem={({item}: ListRenderItemInfo<CartItem>) => {
+                            data={data}
+                            renderItem={({item}) => {
                                 return (
                                     <View style={{marginVertical:10, marginHorizontal: 10}}>
-                                        <Text>{item.menu_item}</Text>
+                                        <Text style={{fontWeight:'bold', fontSize:15}}>{item.menu_item}</Text>
 
                                         <View style={{flexDirection: 'column'}}>
-                                            <Text>kuantiti: {item.quantity}</Text>
-                                            {item.comment !== '' && (
-                                                <Text>{item.comment}</Text>
-                                            )}
+                                            <Text><Text style={{fontWeight:'bold'}}>kuantiti:</Text> {item.quantity}</Text>
                                             {item.selectedCarb !== '' && (
                                                 <Text>makan dengan {item.selectedCarb}</Text>
+                                            )}
+                                            {item.comments.length > 0 && (
+                                                <Text><Text style={{fontWeight:'bold'}}>komen:</Text> {item.comments.join(", ")}</Text>
                                             )}
                                         </View>
                                         
                                     </View>
                                 )
                             }}
-                            keyExtractor={item => item.menu_id.toString()}
+                            keyExtractor={(_, index) => index.toString()}
 
                             style={{borderWidth: 1, borderColor:'#D3D3D3', borderRadius:10}}
                         />
                     </View>
 
-                    <View style={{justifyContent: 'flex-end', marginTop: 5}}>
-                        <TouchableOpacity onPress={closeCartModal} style={styles.button}>
+                    <View style={{justifyContent: 'flex-end', marginTop: 5, marginHorizontal:5, flexDirection:'row', gap: 5}}>
+
+                        <TouchableOpacity onPress={deleteCart} style={[styles.button, {backgroundColor:'#e53935'}]}>
+                            <Text>Buang Semua Item</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={closeCartModal} style={[styles.button, {backgroundColor:'#999'}]}>
                             <Text>Tutup</Text>
                         </TouchableOpacity>
+
                     </View>
 
                 </View>
@@ -85,10 +91,9 @@ const styles = StyleSheet.create({
     },
     button: { 
         paddingVertical: 10,
-        paddingHorizontal: 20, 
+        paddingHorizontal: 10, 
         borderRadius: 8, 
         //marginLeft: 10, 
-        backgroundColor: '#999',
         justifyContent: 'center', 
         alignSelf:'center'
     },

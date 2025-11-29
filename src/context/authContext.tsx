@@ -1,7 +1,7 @@
-import { checkAndAssignUUID, fetchEmployeeData } from "@/services/employeeServices";
+import { checkAndAssignUUID, fetchEmployeeData } from "@/api/employeeServices";
 import { useQuery } from '@tanstack/react-query';
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase-client";
+import { supabase } from "../../lib/supabase-client";
 
 interface User {
     id: string;

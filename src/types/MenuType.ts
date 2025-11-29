@@ -16,3 +16,19 @@ export interface discountDetails {
     discount_value: number,
     discount_operation: discount_operation_types;
 }
+
+export type MenuAvailability = { 
+    menu_id: number,
+    isAvailable: boolean
+};
+
+export type SectionData = {
+    title: string,
+    data: MenuItem[]
+};
+
+export type MenuItem = {
+    menu_id: number,
+    menu_item: string,
+    isAvailable: boolean
+};

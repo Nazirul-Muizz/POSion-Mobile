@@ -1,14 +1,5 @@
-import { OrderItemPayload } from "@/types/OrderType";
+import { OrderItemPayload, OrderProps } from "@/types/OrderType";
 import { supabase } from "../../lib/supabase-client";
-
-export interface OrderProps {
-    order_id: string,
-    table_id: number,
-    dine_option: string, // change to makan/bungkus later
-    discount_id: number,
-    total_price: number,
-    created_at: Date
-}
 
 export const generateNumberOrder = async (): Promise<number> => {
     let { data, error } = await supabase
@@ -54,5 +45,4 @@ export const mutateOrderItem = async (cart: OrderItemPayload[]) => {
     
     return {success: true, data}
 }
-
 

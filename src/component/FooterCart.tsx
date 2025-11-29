@@ -1,8 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // import Animated, { useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated';
+import { FooterCartProps } from '@/types/UiProps';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-export default function FooterCart({openCartModal, isFooterCartShown} : {openCartModal: () => void, isFooterCartShown: boolean}) {
+export default function FooterCart({openCartModal, isFooterCartShown} : FooterCartProps) {
 
     if (!isFooterCartShown) return;
 

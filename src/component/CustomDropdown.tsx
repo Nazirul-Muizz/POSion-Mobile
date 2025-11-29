@@ -1,17 +1,12 @@
-import { useDropdownStore, useOrderItemStore } from '@/store/StatesStore';
+import { useDropdownStore } from '@/store/StatesStore';
+import { DropdownProps } from '@/types/UiProps';
 import { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
-
-interface DropdownProps {
-  id: string
-  data: string[],
-  initialState: string,
-}
 
 export default function CustomDropdown( {id, data, initialState}: DropdownProps) {
   const [open, setOpen] = useState(false);
   //const [value, setValue] = useState('')
-  const {} = useOrderItemStore();
+  // const {} = useOrderItemStore();
   const { selectedOption, setSelectedOption } = useDropdownStore();
 
   const selected = selectedOption[id] || initialState;

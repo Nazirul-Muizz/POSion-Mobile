@@ -1,21 +1,8 @@
-import { fetchMenu, fetchTableId } from "@/services/menuServices";
-import { MenuType } from "@/types/MenuType";
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-
-type SectionData = {
-    title: string,
-    data: MenuItem[]
-}
-
-type MenuItem = {
-    menu_id: number,
-    menu_item: string,
-    isAvailable: boolean
-}
-
-
-type FoodCategoryProps = 'Mee Bandung' | 'Sup' | 'Bakso' | 'Western' | 'Add Ons';
-type DrinksCategoryProps = 'Minuman Panas' | 'Minuman Sejuk' | 'Jus Buah-Buahan';
+import { fetchMenu, fetchTableId, mutateMenuAvailability } from "@/api/menuServices";
+import { MenuItem, MenuType, SectionData } from "@/types/MenuType";
+import { DrinksCategoryProps, FoodCategoryProps } from "@/types/OrderType";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import { Alert } from "react-native";
 
 type useMenuQueryOptions <R extends MenuType[] | unknown = MenuType[]> = Omit <
     UseQueryOptions<MenuType[], Error, R>,
@@ -68,7 +55,7 @@ export const useMenuSections = ( ) => {
      //console.log("data:", JSON.stringify(menuList, null, 2));
 
     return {menuList, isMenuLoading, isMenuFetching}
-}
+};
 
 export const useTableQuery = () => {
     const { data: tableNumber } = useQuery({
@@ -84,7 +71,7 @@ export const useTableQuery = () => {
     })
 
     return tableNumber ?? [];
-}
+};
 
 export const useMenuItemQuery = (tab: FoodCategoryProps | DrinksCategoryProps) => {
     const { data: filteredMenu } = useQuery({
@@ -103,6 +90,32 @@ export const useMenuItemQuery = (tab: FoodCategoryProps | DrinksCategoryProps) =
     })
 
     return filteredMenu;
+};
+
+export const useUpdateMenuAvailability = () => {
+    const menuQuery = ['menu'];
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: mutateMenuAvailability,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey:menuQuery});
+            console.log('menu successfully updated');
+        },
+        onError: (error) => {
+            Alert.alert('Gagal mengubah menu', error.message);
+        },
+    });
+
+    return mutation;
+};
+
+export const useShowFilteredMenu = () => {
+
 }
+
+
+
+
 
 

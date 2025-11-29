@@ -1,18 +1,13 @@
 import { ROLES } from "@/constants/Roles";
 import { useAuth } from "@/context/authContext";
+import { PageProps } from "@/types/UiProps";
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from "expo-router";
-import { JSX } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-type Page = {
-    label: string;
-    icon: JSX.Element;
-    path: '/OrderServer' | '/MenuManager' | '/UserProfile' | '/OrderClient';
-}
 
 export default function FooterNavigation() {
     const router = useRouter();
@@ -44,7 +39,7 @@ export default function FooterNavigation() {
     <View style={styles.footer}>
         {pages.map((page) => (
             <View style={ styles.menuFooter } key={page.label}>
-                <TouchableOpacity key={page.label} onPress={() => router.replace(page.path as Page["path"])} >
+                <TouchableOpacity key={page.label} onPress={() => router.replace(page.path as PageProps["path"])} >
                     {page.icon}
                     <Text style={styles.label}>{page.label}</Text>
                 </TouchableOpacity>

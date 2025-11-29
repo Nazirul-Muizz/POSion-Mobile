@@ -1,17 +1,7 @@
-import type { IconProps } from '@expo/vector-icons/build/createIconSet';
+import { PressableIconProps } from '@/types/UiProps';
 import { useEffect } from 'react';
-import { Pressable, StyleProp, StyleSheet, Text, TextStyle } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-
-interface PressableIconProps {
-    title: string;
-    IconComponent: React.ComponentType<IconProps<any>>;
-    handlePress: () => void;
-    style?: StyleProp<TextStyle>;
-    buttonName: string;
-    textStyle: TextStyle,
-    isActive: boolean;
-}
 
 export default function AnimatedPressableIcon( {
     title,

@@ -1,6 +1,7 @@
+import { discountDetails } from "@/types/MenuType";
 import { CartItem } from "@/types/OrderType";
 
-export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: number) => {
+export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: number, selectedDiscount: discountDetails | null) => {
 
     const extractTableId = () => {
         const tableNumber = selectedOption['table number'] || '';
@@ -16,8 +17,15 @@ export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: 
             return acc + price
         }, 0)
 
-        console.log(`calculated price: ${normalTotalPrice}`);
-        return normalTotalPrice;
+        //console.log(`calculated price: ${normalTotalPrice}`);
+
+        const discountValue = selectedDiscount?.discount_value ?? 0;
+
+        const afterDiscountPrice = selectedDiscount?.discount_operation === 'multiply' ? normalTotalPrice - (normalTotalPrice * discountValue) : (normalTotalPrice - discountValue)
+        
+        console.log(`calculated price: ${afterDiscountPrice}`);
+
+        return afterDiscountPrice;
     };
 
     //const orderNumber = generateNumberOrder(); //generate number for order id
@@ -38,7 +46,9 @@ export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: 
         created_at: date,
         total_price: totalPrice,
         table_id: tableId,
-        discount_id: 8 // discount id from global state
+        discount_id: selectedDiscount?.discount_id // discount id from global state
     }    
     
 };
+
+
