@@ -1,7 +1,7 @@
 import { discountDetails } from "@/types/MenuType";
 import { StyleSheet, View } from 'react-native';
-import ConfigPopup from "./ConfigPopup";
-import RadioButton from "./RadioButton";
+import ConfigPopup from "../ConfigPopup";
+import RadioButton from "../RadioButton";
 
 const SubmitDialog = ({
     data,

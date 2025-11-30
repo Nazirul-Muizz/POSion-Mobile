@@ -2,7 +2,7 @@ import CustomButton from "@/component/CustomButton";
 import LoadingSpinner from "@/component/FullPageSpinner";
 import MainTemplate from "@/component/MainPagesTemplate";
 import ModalSpinner from "@/component/ModalSpinner";
-import { RenderOrder } from "@/component/Order";
+import { RenderOrder } from "@/component/orderServer/Order";
 import { useMutateOrderStatus, useOrderFilter, useOrdersQuery } from "@/hooks/orderServerHooks";
 import { OrderProps } from "@/types/OrderType";
 import { useState } from "react";

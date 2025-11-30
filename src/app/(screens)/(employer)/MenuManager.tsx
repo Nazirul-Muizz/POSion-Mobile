@@ -1,9 +1,10 @@
 import CustomButton from "@/component/CustomButton";
 import FullPageSpinner from "@/component/FullPageSpinner";
-import { useMenuSections, useShowFilteredMenu, useUpdateMenuAvailability } from "@/hooks/menuHook";
+import Menu from "@/component/menu/Menu";
+import { useMenuSections, useShowFilteredMenu } from "@/hooks/menuHook";
 import { MenuItem } from "@/types/MenuType";
 import { useState } from "react";
-import { ListRenderItemInfo, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ListRenderItemInfo, SectionList, StyleSheet, Text, TextInput, View } from "react-native";
 
 import MainTemplate from "@/component/MainPagesTemplate";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -13,35 +14,19 @@ export default function MenuManagement() {
     const [activeTab, setActiveTab] = useState< 'Ada' | 'Tiada' >('Ada');
     const [search, setSearch] = useState("");
     const { menuList, isMenuLoading, isMenuFetching } = useMenuSections();
-    const mutation = useUpdateMenuAvailability();
     const filteredSections = useShowFilteredMenu({menuList, activeTab, search});
 
-    console.log(`filtered sections: ${JSON.stringify(filteredSections)}`);
+    //console.log(`filtered sections: ${JSON.stringify(filteredSections)}`);
 
     if (isMenuLoading || isMenuFetching) {
         return <FullPageSpinner message="Memuatkan menu..." />
     }
 
-
     const renderItem = ({item: row}: ListRenderItemInfo<MenuItem[]>) => {
         if (!Array.isArray(row)) return null;
         //console.log(`menu id from render item: ${item.menu_id}`)
         return (
-            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                {row.map((menuItem) => (
-                <TouchableOpacity key={menuItem.menu_id} style={styles.menuItemContainer} onPress={() => {}}>
-                    <Text style={{ color: 'black', marginVertical: 10, fontSize: 14, textAlign: 'center' }}>
-                        {menuItem.menu_item}
-                    </Text>
-                </TouchableOpacity>
-            ))}
-
-            {/* Add empty views if row has less than 3 items to align */}
-            {row.length < 3 &&
-                Array.from({ length: 3 - row.length }).map((_, i) => (
-                    <View key={`empty-${i}`} style={{ flex: 1, marginHorizontal: 4, marginLeft:5 }} />
-                ))}
-            </View>
+            <Menu row={row} activeTab={activeTab} />
         );
     };
 
@@ -146,21 +131,6 @@ const styles = StyleSheet.create({
         marginRight: 8,
         color: '#999',
     },
-    menuItemContainer: {
-        borderWidth: 1,
-        width: '100%',
-        borderColor: 'white',
-        flexDirection: 'row',
-        flex: 1,
-        marginHorizontal: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 8, 
-        opacity: 0.95,
-        padding: 5,
-        elevation: 2,
-    }
 });
 
 const headerStyles = StyleSheet.create({
@@ -175,4 +145,4 @@ const headerStyles = StyleSheet.create({
         fontSize: 20,
         marginTop: 10
     },
-})
+});

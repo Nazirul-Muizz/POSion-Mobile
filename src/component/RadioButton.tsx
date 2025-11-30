@@ -1,19 +1,19 @@
 import { discountDetails } from '@/types/MenuType';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export interface RadioButtonProps {
+export interface RadioButtonProps<T = discountDetails> {
     label: string,
-    value: discountDetails,
-    selectedValue: discountDetails | null,
-    onSelect: (value: discountDetails) => void,
+    value: T,
+    selectedValue: T | null,
+    onSelect: (value: T) => void,
 }
 
-const RadioButton = ({
+const RadioButton = <T,>({
     label,
     value,
     selectedValue,
     onSelect
-}: RadioButtonProps) => {
+}: RadioButtonProps<T>) => {
     const isSelected = value === selectedValue;
 
     return (

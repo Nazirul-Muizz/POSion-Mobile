@@ -1,10 +1,10 @@
 import ConfigPopup from "@/component/ConfigPopup";
 import CustomButton from "@/component/CustomButton";
 import CustomDropdown from "@/component/CustomDropdown";
-import FooterCart from "@/component/FooterCart";
 import AnimatedPressableIcon from "@/component/InteractivePressable";
-import ShowCartItemPopup from "@/component/ShowCartPopup";
-import SubmitDialog from "@/component/SubmitDialog";
+import FooterCart from "@/component/orderClient/FooterCart";
+import ShowCartItemPopup from "@/component/orderClient/ShowCartPopup";
+import SubmitDialog from "@/component/orderClient/SubmitDialog";
 
 import { carb } from "@/constants/Carb";
 import { dineOption } from "@/constants/DineOptions";

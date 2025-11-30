@@ -3,7 +3,7 @@ import { MenuItem, MenuType, SectionData } from "@/types/MenuType";
 import { DrinksCategoryProps, FoodCategoryProps } from "@/types/OrderType";
 import { chunkIntoRows } from "@/utils/menuHelper";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Alert } from "react-native";
 
 type useMenuQueryOptions <R extends MenuType[] | unknown = MenuType[]> = 
@@ -99,7 +99,7 @@ export const useUpdateMenuAvailability = () => {
     const menuQuery = ['menu'];
     const queryClient = useQueryClient();
 
-    const mutation = useMutation({
+    const {mutate:mutation, isPending} = useMutation({
         mutationFn: mutateMenuAvailability,
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:menuQuery});
@@ -110,7 +110,7 @@ export const useUpdateMenuAvailability = () => {
         },
     });
 
-    return mutation;
+    return {mutation, isPending};
 };
 
 export const useShowFilteredMenu = ({
@@ -145,6 +145,34 @@ export const useShowFilteredMenu = ({
     }, [menuList, search, activeTab])
 
     return filteredSections;
+}
+
+export const useHandleMenuItemPress = (): {
+    showModal: boolean;
+    selectedMenuId: number | null;
+    handlePress: (menuId: number) => void;
+    handleCloseModal: () => void;
+} => {
+    const [showModal, setShowModal] = useState(false);
+    const [selectedMenuId, setSelectedMenuId] = useState<number | null>(null);
+
+    const handlePress = (menuId: number) => {
+        setSelectedMenuId(menuId);
+        setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedMenuId(null);
+    }
+
+    return { 
+        showModal, 
+        selectedMenuId, 
+        handlePress, 
+        handleCloseModal
+     };
+
 }
 
 

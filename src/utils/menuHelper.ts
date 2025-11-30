@@ -7,3 +7,10 @@ export const chunkIntoRows = <T>(data: T[], columns: number = 3): T[][] => {
     }
     return rows;
 }
+
+export const validateItemName = (name: string): boolean => {
+    // new name should not be empty or just spaces
+    // and should not exceed 50 characters
+    return name.trim().length > 0 && name.length <= 50; 
+}
+

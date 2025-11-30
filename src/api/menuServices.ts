@@ -48,3 +48,16 @@ export const mutateMenuAvailability = async ({isAvailable, menu_id}: MenuAvailab
     // Return the single updated item
     return data[0];   
 }
+
+export const mutateMenuItemName = async (menu_id: number, newName: string): Promise<MenuType> => {
+    const { data, error } = await supabase
+        .from('restaurant_menu')
+        .update({item_name: newName})
+        .eq('menu_id', menu_id)
+        .select()
+
+    if (error) throw new Error(error.message)
+
+    return data[0];
+    
+} 
