@@ -6,7 +6,6 @@ const DisplayItemPopup = ({
     orderId,
     onClose
 }: {visible: boolean, orderId: string, onClose: () => void}) => {
-    //const count = useRef(1);
     const orderItems = useOrderItemQuery(orderId);
 
     console.log('Order items in DisplayItemPopup: ', JSON.stringify(orderItems, null, 2));
@@ -106,32 +105,3 @@ const styles = StyleSheet.create({
     cancelButton: { backgroundColor: 'gray' },
     buttonText: { color: '#fff', fontSize: 13 },
 });
-
-{/* <FlatList
-                data={orderItems}
-                keyExtractor={item => item.menu_id.toString()}
-                renderItem={({item}) => {
-                    const comments = (item.comment && Array.isArray(item.comment) && item.comment.length > 0)
-                        ? item.comment
-                        : null;
-
-                    return (
-                        <View style={{marginVertical:10, marginHorizontal: 10}}>
-                            <Text style={{fontWeight:'bold', fontSize:15}}>{item.item_name}</Text>
-
-                            <View style={{flexDirection: 'column'}}>
-                                <Text><Text style={{fontWeight:'bold'}}>kuantiti:</Text> {item.quantity}</Text>
-                                {item.carb !== '' && (
-                                    <Text>makan dengan {item.carb}</Text>
-                                )}
-                                {comments && (
-                                    <Text>
-                                        <Text style={{ fontWeight: 'bold' }}>komen:</Text> {comments.join(", ")}
-                                    </Text>
-                                )}
-                            </View>
-                            
-                        </View>
-                    )
-                }                } 
-            /> */}

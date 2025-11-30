@@ -1,14 +1,12 @@
 import CustomButton from "@/component/CustomButton";
-import CustomSidebar from "@/component/CustomSidebar";
 import FullPageSpinner from "@/component/FullPageSpinner";
-import { useMenuSections, useUpdateMenuAvailability } from "@/hooks/menuHook";
+import { useMenuSections, useShowFilteredMenu, useUpdateMenuAvailability } from "@/hooks/menuHook";
 import { MenuItem } from "@/types/MenuType";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ListRenderItemInfo, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import MainTemplate from "@/component/MainPagesTemplate";
 import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 export default function MenuManagement() {
     const [showSidebar, setShowSidebar] = useState(false);
@@ -16,69 +14,44 @@ export default function MenuManagement() {
     const [search, setSearch] = useState("");
     const { menuList, isMenuLoading, isMenuFetching } = useMenuSections();
     const mutation = useUpdateMenuAvailability();
+    const filteredSections = useShowFilteredMenu({menuList, activeTab, search});
 
-    const filteredSections = useMemo(() => {
-        if (!Array.isArray(menuList)) return [];
-
-        const searchStatement = search.trim().toLowerCase();
-
-        const checkAvailability = activeTab === 'Ada'
-
-        return menuList
-
-        .map(section => {
-            const items = Array.isArray(section.data) ? section.data : [];
-
-            const filteredData = items.filter( item => {
-                if (!item) return false;
-                const matchedSearches = searchStatement === '' || (typeof item.menu_item === 'string' && item.menu_item.toLowerCase().includes(searchStatement));
-                const matchAvailability = item.isAvailable === checkAvailability;
-                return matchedSearches && matchAvailability;
-            })
-
-            return {...section, data: filteredData}
-        })
-
-        .filter(section => section.data.length > 0)
-
-    }, [menuList, search, activeTab])
+    console.log(`filtered sections: ${JSON.stringify(filteredSections)}`);
 
     if (isMenuLoading || isMenuFetching) {
         return <FullPageSpinner message="Memuatkan menu..." />
     }
 
 
-    const renderItem = ({item}: ListRenderItemInfo<MenuItem>) => {
+    const renderItem = ({item: row}: ListRenderItemInfo<MenuItem[]>) => {
+        if (!Array.isArray(row)) return null;
         //console.log(`menu id from render item: ${item.menu_id}`)
         return (
-            <View style={ styles.menuItemContainer }>
-                <Text style={{flex:8, color:'white', marginVertical: 10, fontSize:16}}>{item.menu_item}</Text>
-                {activeTab === 'Ada' ? (
-                    <View style={{flex:1}}>
-                    <TouchableOpacity style={{ }} onPress={() => mutation.mutate({menu_id: item.menu_id, isAvailable: false})}>
-                        <FontAwesome name="remove" size={22} color="red" style={ styles.operationIcons } />
-                    </TouchableOpacity>
-                    </View>
-                ) :
-                <View style={{flex:1}}>
-                    <TouchableOpacity onPress={() => mutation.mutate({menu_id: item.menu_id, isAvailable: true})}>
-                        <FontAwesome6 name="add" size={22} color="green" style={ styles.operationIcons}/>
-                    </TouchableOpacity>
-                </View>
-                }
+            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                {row.map((menuItem) => (
+                <TouchableOpacity key={menuItem.menu_id} style={styles.menuItemContainer} onPress={() => {}}>
+                    <Text style={{ color: 'black', marginVertical: 10, fontSize: 14, textAlign: 'center' }}>
+                        {menuItem.menu_item}
+                    </Text>
+                </TouchableOpacity>
+            ))}
+
+            {/* Add empty views if row has less than 3 items to align */}
+            {row.length < 3 &&
+                Array.from({ length: 3 - row.length }).map((_, i) => (
+                    <View key={`empty-${i}`} style={{ flex: 1, marginHorizontal: 4, marginLeft:5 }} />
+                ))}
             </View>
-        )
-    }
+        );
+    };
 
 
     return (
-        <View style={{ flex:1, backgroundColor:'black' }}>
-            <View style={{flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
-                <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
-                    <Entypo name="menu" size={36} color="white" />
-                </TouchableOpacity>
-            <Text style={ styles.title }>Pengurusan Menu</Text>
-            </View>
+        <MainTemplate
+            title="Pengurusan Menu"
+            openSidebar={setShowSidebar}
+            sidebar={showSidebar}
+        >
             <View style={styles.searchContainer}>
                     <Entypo name="magnifying-glass" size={20} color="#666" style={styles.searchIcon} />
                     <TextInput
@@ -115,19 +88,15 @@ export default function MenuManagement() {
                         </View>
                     )
                 }}
-                keyExtractor={(item) => item.menu_id?.toString()}
-                ListEmptyComponent={() => activeTab === 'Ada' ? <Text style={{color:'white', textAlign: 'center'}}>Semua item tidak tersedia</Text> 
-                : <Text style={{color:'white', textAlign:'center'}}>Semua item tersedia</Text>}
+                keyExtractor={(item) => item[0]?.menu_id?.toString() || Math.random().toString()}
+                ListEmptyComponent={
+                    () => activeTab === 'Ada' ? <Text style={{color:'white', textAlign: 'center'}}>Semua item tidak tersedia</Text> 
+                    : <Text style={{color:'white', textAlign:'center'}}>Semua item tersedia</Text>
+                }
                 contentContainerStyle={{paddingBottom:80}}
             />
 
-
-            {showSidebar && (
-                <CustomSidebar 
-                    onClose = { () => setShowSidebar(false) }>
-                </CustomSidebar>
-            )}
-        </View> 
+        </MainTemplate>
     );
 };
 
@@ -178,27 +147,27 @@ const styles = StyleSheet.create({
         color: '#999',
     },
     menuItemContainer: {
-        borderBottomWidth: 1,
+        borderWidth: 1,
         width: '100%',
-        borderBottomColor: 'white',
+        borderColor: 'white',
         flexDirection: 'row',
-    },
-    operationIcons: {
-        marginTop:5, 
-        borderWidth:3, 
-        borderColor:'white', 
-        borderRadius: 40,
+        flex: 1,
+        marginHorizontal: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: 'white',
-        marginRight: 10,
-        marginLeft: 3,
-        // margin:6
-        paddingLeft: 1.5
+        borderRadius: 8, 
+        opacity: 0.95,
+        padding: 5,
+        elevation: 2,
     }
 });
 
 const headerStyles = StyleSheet.create({
     headerContainer: {
-        marginVertical: 3
+        marginVertical: 5,
+        marginLeft: 10,
+        marginBottom: 10
     },
     headerTitle: {
         color: 'white',
