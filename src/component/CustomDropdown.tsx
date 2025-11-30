@@ -1,4 +1,4 @@
-import { useDropdownStore } from '@/store/StatesStore';
+import { useDropdownStore } from '@/store/globalStore';
 import { DropdownProps } from '@/types/UiProps';
 import { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';

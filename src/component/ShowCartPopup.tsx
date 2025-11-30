@@ -23,7 +23,7 @@ export default function ShowCartItemPopup({
 
                 <View style={styles.modalBox}>
 
-                    <View style={{}}>
+                    <View>
                         <Text adjustsFontSizeToFit style={{fontSize:17, color:'black', marginHorizontal: 10, fontWeight:'bold', textAlign:'center'}}>Senarai Item</Text>
                     </View>
                     

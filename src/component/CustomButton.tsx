@@ -130,14 +130,14 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch', 
   },
   button: {
-    paddingVertical: 14,
+    paddingVertical: 13,
     paddingHorizontal: 30,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 30, // Minimum height for a good oval shape
   },
   text: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
   disabledButton: {

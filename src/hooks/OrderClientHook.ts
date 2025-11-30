@@ -1,14 +1,14 @@
 
 import { fetchDiscount } from "@/api/menuServices";
 import { generateNumberOrder, mutateOrder, mutateOrderItem } from "@/api/orderServices";
-import { useDropdownStore } from "@/store/StatesStore";
+import { useDropdownStore } from "@/store/globalStore";
 import { MenuType, discountDetails } from "@/types/MenuType";
 import { CartItem, CatProps, DrinksCategoryProps, FoodCategoryProps, OrderItemPayload, OrderItemState } from "@/types/OrderType";
-import { createOrder } from "@/utils/OrderHelper";
+import { createOrder } from "@/utils/orderHelper";
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import { useMenuItemQuery } from "./MenuHook";
+import { useMenuItemQuery } from "./menuHook";
 
 export const useOrderMutate = () => {
     const { mutate, mutateAsync, isSuccess, isError} = useMutation({
@@ -49,7 +49,7 @@ export const useSubmitOrder = (cart: CartItem[], setCart: (cart: CartItem[]) => 
 
         const queriedOrderNumber = await generateNumberOrder();
         const actualNumberOrder = queriedOrderNumber
-        const { order_id, dine_option, created_at, total_price, table_id, discount_id } = createOrder(cart, selectedOption, actualNumberOrder, selectedDiscount);
+        const { order_id, dine_option, created_at, total_price, table_id, discount_id, is_prepared } = createOrder(cart, selectedOption, actualNumberOrder, selectedDiscount);
 
         if (cart.length === 0) {
             Alert.alert('Ralat', 'Sila tambah item untuk membuat pesanan');
@@ -73,7 +73,8 @@ export const useSubmitOrder = (cart: CartItem[], setCart: (cart: CartItem[]) => 
                 created_at: created_at,
                 total_price: total_price,
                 table_id: table_id,
-                discount_id: discount_id
+                discount_id: discount_id,
+                is_prepared: is_prepared
             };
 
             await mutateOrder(orderData)

@@ -1,89 +1,46 @@
 import CustomButton from "@/component/CustomButton";
-import CustomSideBar from "@/component/CustomSidebar";
-import { registerForPushNotificationsAsync } from "@/component/PushNotification";
-import Entypo from '@expo/vector-icons/Entypo';
-import { useEffect, useMemo, useState } from "react";
-import { ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated from 'react-native-reanimated';
-
-interface OrderItemType {
-    id: number,
-    item: string,
-    comment: string | null,
-    isPrepared: boolean
-}
+import LoadingSpinner from "@/component/FullPageSpinner";
+import MainTemplate from "@/component/MainPagesTemplate";
+import ModalSpinner from "@/component/ModalSpinner";
+import { RenderOrder } from "@/component/Order";
+import { useMutateOrderStatus, useOrderFilter, useOrdersQuery } from "@/hooks/orderServerHooks";
+import { OrderProps } from "@/types/OrderType";
+import { useState } from "react";
+import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 
 export default function OrderManagement() {
     const [showSidebar, setShowSidebar] = useState(false);
-    const [orderItem, setOrderItem] = useState<OrderItemType[]>([]);
-    const [activeTab, setActiveTab] = useState<'Semasa' | 'Log'>('Semasa');
+    const [activeTab, setActiveTab] = useState<'Semasa' | 'Terdahulu'>('Semasa');
+    const { ordersQuery, isLoading } = useOrdersQuery();
+    const { updateOrderStatus, isPending } = useMutateOrderStatus();
 
-    useEffect(() => {
-        registerForPushNotificationsAsync();
-    }, []);
+    console.log('orders in Order Server: ', JSON.stringify(ordersQuery, null, 2));
 
-    const filteredOrders = useMemo( () => {
-        let result: OrderItemType[] = [];
+    const { activeOrders, inactiveOrders } = useOrderFilter(ordersQuery);
 
-        if (activeTab === 'Semasa') return orderItem.filter(item => item.isPrepared === false)
-        else if (activeTab === 'Log') return orderItem.filter(item => item.isPrepared === true)
-
-        console.log(`Filtered items showing on '${activeTab}' tab: ${result.length}`);
-        return result;
-
-    }, [orderItem, activeTab])
-
-    // Function to handle marking an item as prepared (for the button action)
-    const togglePrepared = (id: number) => {
-        setOrderItem(prevItems => 
-            prevItems.map(item => 
-                item.id === id ? { ...item, isPrepared: !item.isPrepared } : item
-            )
-        );
-    };
-
-    const renderItem = ( {item}: ListRenderItemInfo<OrderItemType> ) => {
-        const cardStyle = item.isPrepared ? styles.logCard : styles.orderCard;
-        const buttonTitle = item.isPrepared ? "Undo Log" : "Mark Prepared";
-        
-        return (
-            <View style={cardStyle}>
-                <View style={styles.cardHeader}>
-                    <Text style={styles.orderItemName}>Order #{item.id}: {item.item}</Text>
-                    <Text style={[
-                        styles.orderItemStatus, 
-                        { color: item.isPrepared ? '#4CAF50' : '#FF9800' } // Green for log, Orange for Semasa
-                    ]}>
-                        {item.isPrepared ? "LOGGED" : "PENDING"}
-                    </Text>
-                </View>
-                <Text style={styles.orderItemComment}>Comment: {item.comment || "None"}</Text>
-                
-                {/* Action button */}
-                <TouchableOpacity 
-                    onPress={() => togglePrepared(item.id)}
-                    style={[
-                        styles.actionButton, 
-                        { backgroundColor: item.isPrepared ? '#FF5733' : '#4CAF50' } // Red for undo, Green for complete
-                    ]}
-                    >
-                    <Text style={styles.actionButtonText}>
-                        {buttonTitle}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        );
+    if (isLoading) {
+        return <LoadingSpinner message="Memuatkan pesanan..."/>;
     }
-    
+
+    if (isPending) {
+        return <ModalSpinner message="Mengemas kini status pesanan..."/>;
+    }
+
+    const renderItem = ({item}: ListRenderItemInfo<OrderProps>) => {
+        return (
+           <RenderOrder
+                order={item}
+                updateOrderStatus={updateOrderStatus} 
+           />
+        )
+    }
 
     return (
-        <View style={{ flex:1, backgroundColor:'black'}}>
-            <View style={{ flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
-                <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
-                    <Entypo name="menu" size={36} color="white" />
-                </TouchableOpacity>
-                <Text style={ styles.title } >Pesanan</Text>
-            </View>
+        <MainTemplate
+            title="Pesanan"
+            openSidebar={setShowSidebar}
+            sidebar={showSidebar}
+        >
             <View style={styles.buttonContainer}>
                 <CustomButton 
                     title="Semasa" 
@@ -95,36 +52,26 @@ export default function OrderManagement() {
                     ]}
                 />
                 <CustomButton 
-                    title="Log" 
-                    onPress={() => setActiveTab('Log')} 
-                    textStyle={ activeTab === 'Log' ? { color: 'white' } : { color: 'black' }}
+                    title="Terdahulu" 
+                    onPress={() => setActiveTab('Terdahulu')} 
+                    textStyle={ activeTab === 'Terdahulu' ? { color: 'white' } : { color: 'black' }}
                     style={[
                         styles.pageButton, 
-                        (activeTab === 'Log' ? styles.activeButton : styles.inactiveButton)
+                        (activeTab === 'Terdahulu' ? styles.activeButton : styles.inactiveButton)
                     ]}
                 />
             </View>
 
-            <Animated.FlatList 
-                // Pass the computed filtered list here
-                data={filteredOrders}
-                keyExtractor={(item) => item.id.toString()}
+            <FlatList
+                data={ activeTab === 'Semasa' ? activeOrders : inactiveOrders }
+                keyExtractor={item => item.order_id}
                 renderItem={renderItem}
-                contentContainerStyle={[styles.listContainer, { paddingBottom: 100 }]}
-                ListEmptyComponent={() => (
-                    <Text style={styles.emptyText}>
-                        {activeTab === 'Semasa' 
-                            ? "Tiada pesanan baru buat masa ini"
-                            : "Tiada pesanan dalam log"
-                        }
-                    </Text>
-                )}
-            /> 
+                contentContainerStyle={{ paddingBottom: 150 }}
+                style={{gap: 10, marginVertical: 10}} 
+            />
 
-            {showSidebar && (
-                <CustomSideBar onClose = { () => setShowSidebar(false) } />
-            )}
-        </View>
+        </MainTemplate>
+
     )
 };
 
@@ -157,8 +104,11 @@ const styles = StyleSheet.create({
     // STYLES for the tab buttons
     pageButton: {
         marginHorizontal: 4, 
-        marginVertical: 8, 
+        marginVertical: 8,
+        borderWidth: 2,
+        borderColor:'white' 
     },
+    
     activeButton: {
         backgroundColor: '#4CAF50'
         
@@ -209,8 +159,8 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     orderItemComment: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 17,
+        color: 'black',
         marginBottom: 8,
     },
     orderItemStatus: {

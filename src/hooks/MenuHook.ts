@@ -4,7 +4,8 @@ import { DrinksCategoryProps, FoodCategoryProps } from "@/types/OrderType";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
-type useMenuQueryOptions <R extends MenuType[] | unknown = MenuType[]> = Omit <
+type useMenuQueryOptions <R extends MenuType[] | unknown = MenuType[]> = 
+Omit <
     UseQueryOptions<MenuType[], Error, R>,
     'queryKey' | 'queryFn'
 >
@@ -13,7 +14,7 @@ export const useMenuQuery = <R = MenuType[]> (options?: useMenuQueryOptions<R> )
     return useQuery<MenuType[], Error, R>({
         queryKey:['menu'],
         queryFn: fetchMenu,
-        staleTime: 5 * 60 * 1000, // 5 MINUTES
+        staleTime: 60 * 60 * 1000,
         ...options
     })
 };
@@ -23,7 +24,7 @@ export const useMenuSections = ( ) => {
         select: (data) => {
             if (!Array.isArray(data)) return []; 
 
-            console.log(data)
+            //console.log(data)
             const grouped = data.reduce( (acc: SectionData[], currentItem) => {
                 if (!currentItem?.category_name) return acc; 
                 const categoryName = currentItem.category_name;

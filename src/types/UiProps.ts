@@ -6,7 +6,7 @@ import { CartItem } from './OrderType';
 export type PopupProps = {
     message:string,
     visible: boolean,
-    onConfirm: () => void,
+    onConfirm?: () => void,
     onCancel: () => void,
 }
 

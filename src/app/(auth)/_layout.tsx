@@ -14,7 +14,7 @@ export default function AuthGateLayout() {
 
   if (loading || isRoleLoading) {
     return (
-      <FullPageSpinner message="loading user data..." />
+      <FullPageSpinner message="Mengenal pasti pengguna..." />
     );
   }
 

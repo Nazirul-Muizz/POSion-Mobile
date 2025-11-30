@@ -29,5 +29,6 @@ export interface OrderProps {
     dine_option: dineOption, // change to makan/bungkus later
     discount_id: number | undefined,
     total_price: number,
-    created_at: Date
+    created_at: Date,
+    is_prepared: boolean
 }

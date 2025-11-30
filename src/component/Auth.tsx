@@ -94,6 +94,7 @@ export default function Auth() {
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <TextInput
             placeholder="Email"
+            placeholderTextColor='black'
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -102,6 +103,7 @@ export default function Auth() {
         <View style={ styles.passwordInputContainer }>
           <TextInput
             placeholder="Password"
+            placeholderTextColor='black'
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!isPasswordVisible}
@@ -117,20 +119,21 @@ export default function Auth() {
         </View>
       </View>
       <View style={[styles.buttonContainer, styles.mt20]}>
+
         <CustomButton 
           title='Login' 
-          onPress={signInWithEmail}
+          onAnimationComplete={signInWithEmail}
           textStyle={ {color: 'white'} }
           style={ styles.button }
-          //onAnimationComplete={signInWithEmail}
         />
+
         <CustomButton 
           title='Register' 
-          onPress={signUpWithEmail}
+          onAnimationComplete={signUpWithEmail}
           textStyle={ {color: 'white'} }
           style={ styles.button }
-          //onAnimationComplete={signUpWithEmail}
         />     
+        
       </View>
     </View>
   )
@@ -158,7 +161,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, 
     borderColor: 'black', 
     padding: 10, 
-    borderRadius: 5 
+    borderRadius: 10,
+    color: 'black'
 },
   passwordInputContainer: {
     flexDirection: 'row',

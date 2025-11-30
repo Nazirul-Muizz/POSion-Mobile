@@ -11,8 +11,8 @@ import { dineOption } from "@/constants/DineOptions";
 
 import { OrderItemState } from "@/types/OrderType";
 
-import { useTableQuery } from "@/hooks/MenuHook";
-import { useDiscountQuery, useHandleCart, useModalVisibility, useOrderFlow, useSelectDiscount, useShowFooterCart, useSubmitOrder } from "@/hooks/OrderClientHook";
+import { useTableQuery } from "@/hooks/menuHook";
+import { useDiscountQuery, useHandleCart, useModalVisibility, useOrderFlow, useSelectDiscount, useShowFooterCart, useSubmitOrder } from "@/hooks/orderClientHook";
 import { FlatList, ListRenderItemInfo, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -277,7 +277,8 @@ export default function AddOrder() {
                                 <TextInput
                                     value={comment}                                    
                                     placeholder="contoh: nak pedas, kurang manis"
-                                    style={{borderWidth:2, borderColor:'#D3D3D3', borderRadius: 10}}
+                                    placeholderTextColor={'black'}
+                                    style={{borderWidth:2, borderColor:'#D3D3D3', borderRadius: 10, color:'black'}}
                                     onChangeText={setComment}
                                 />
                             </View>

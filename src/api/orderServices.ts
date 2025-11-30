@@ -46,3 +46,47 @@ export const mutateOrderItem = async (cart: OrderItemPayload[]) => {
     return {success: true, data}
 }
 
+export const fetchOrder = async (): Promise<OrderProps[] | []> => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    const oneMonthAgoISO = oneMonthAgo.toISOString();
+
+    const { data, error, } = await supabase
+        .from('restaurant_order')
+        .select('*')
+        .gte('created_at', oneMonthAgoISO)
+    
+    if (error) throw new Error(error.message)
+
+    return data as OrderProps[];
+}
+
+export const fetchOrderItem = async (orderId: string): Promise<OrderItemPayload[] | []> => {
+    const { data, error, } = await supabase
+        .from('restaurant_item')
+        .select('*')
+        .eq('order_id', orderId)
+    
+    if (error) throw new Error(error.message)
+
+    return data as OrderItemPayload[];
+}
+
+export const mutateOrderStatus = async ({orderId, state}: {orderId: string, state: boolean}) => {
+    const { data, error } = await supabase
+        .from('restaurant_order')
+        .update({ "is_prepared": state })
+        .eq('order_id', orderId)
+        .select();
+
+    if (error) throw new Error(error.message);
+
+    if (!data || data.length === 0) {
+        // Throw an explicit error if 0 rows were updated, even if Supabase returned 200
+        throw new Error(`Failed to update order ${orderId}: 0 rows affected.`);
+    }
+
+    return data;
+}
+
+

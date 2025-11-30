@@ -1,7 +1,13 @@
 import { discountDetails } from "@/types/MenuType";
 import { CartItem } from "@/types/OrderType";
+import { getMalaysiaFormattedTime } from "./timeUtils";
 
-export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: number, selectedDiscount: discountDetails | null) => {
+export const createOrder = (
+    cart: CartItem[], 
+    selectedOption: any, 
+    orderNumber: number, 
+    selectedDiscount: discountDetails | null
+) => {
 
     const extractTableId = () => {
         const tableNumber = selectedOption['table number'] || '';
@@ -35,6 +41,10 @@ export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: 
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear()
 
+    const createdAtTimestamp = getMalaysiaFormattedTime();
+    const createdAt = new Date(createdAtTimestamp);
+    console.log('Created at timestamp:', createdAtTimestamp);
+
     const tableId = extractTableId();
     const totalPrice = calculateTotalPrice();
     const orderId = `ORDER-${year}${month}${day}-${String(orderNumber)}`;
@@ -43,12 +53,11 @@ export const createOrder = (cart: CartItem[], selectedOption: any, orderNumber: 
     return {
         order_id: orderId,
         dine_option: dineOption,
-        created_at: date,
+        created_at: createdAt,
         total_price: totalPrice,
         table_id: tableId,
-        discount_id: selectedDiscount?.discount_id // discount id from global state
+        discount_id: selectedDiscount?.discount_id,
+        is_prepared: false // discount id from global state
     }    
     
 };
-
-

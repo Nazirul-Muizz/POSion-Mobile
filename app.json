@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "POSionApp",
+    "name": "POSion",
     "slug": "POSionApp",
     "version": "1.0.0",
     "jsEngine": "hermes",
     "orientation": "portrait",
-    "icon": "./assets/images/POSion-logo-bg.png",
+    "icon": "./assets/images/posion-logo-grayscale.png",
     "scheme": "posionapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nazirulm.POSionApp"
     },
     "web": {
       "output": "static",
@@ -31,7 +32,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/posion-logo-grayscale.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -44,6 +45,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "99a5bc86-8ff7-42ba-a9e7-008b7e3da2c4"
+      }
+    },
+    "owner": "nazirulm"
   }
 }

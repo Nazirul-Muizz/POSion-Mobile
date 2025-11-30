@@ -17,19 +17,19 @@ export default function FooterNavigation() {
 
     const rolePages = {
         [ROLES.MANAGER]: [
-            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
-            { label: 'Tambah Order', icon: <Entypo name="add-to-list" size={24} color="white" style={styles.icon}/>, path: '/OrderClient' },
-            { label: 'Menu', icon: <MaterialIcons name="menu-book" size={24} color="white" style={styles.icon}/>, path: '/MenuManager' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
+            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Tambah Order', icon: <Entypo name="add-to-list" style={styles.icon}/>, path: '/OrderClient' },
+            { label: 'Edit Menu', icon: <MaterialIcons name="menu-book" style={styles.icon}/>, path: '/MenuManager' },
+            { label: 'Profile', icon: <Feather name="user" style={styles.icon}/>, path: '/UserProfile' },
         ],
         [ROLES.EMPLOYEE_REST]: [
-            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
-            { label: 'Tambah Order', icon: <Entypo name="add-to-list" size={24} color="white" style={styles.icon}/>, path: '/OrderClient' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
+            { label: 'List Order', icon: <FontAwesome6 name="rectangle-list" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Tambah Order', icon: <Entypo name="add-to-list" style={styles.icon}/>, path: '/OrderClient' },
+            { label: 'Profile', icon: <Feather name="user" style={styles.icon}/>, path: '/UserProfile' },
         ],
         [ROLES.EMPLOYEE_STALL]: [
-            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" size={24} color="white" style={styles.icon}/>, path: '/OrderServer' },
-            { label: 'Profile', icon: <Feather name="user" size={24} color="white" style={styles.icon}/>, path: '/UserProfile' },
+            { label: 'Order', icon: <FontAwesome6 name="rectangle-list" style={styles.icon}/>, path: '/OrderServer' },
+            { label: 'Profile', icon: <Feather name="user" style={styles.icon}/>, path: '/UserProfile' },
         ],
     };
 
@@ -57,13 +57,13 @@ const styles = StyleSheet.create({
     right: 0,
     height: 60,
     width: '100%',
-    backgroundColor: '#333',
+    backgroundColor: 'white',
     flexDirection: 'row',
     zIndex: 10,
     elevation: 10,
   },
   label: {
-    color: "white",
+    color: "#333",
     fontSize: 12,
     marginTop: 4,
     textAlign: "center",
@@ -80,5 +80,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 5
   },
-  icon: { alignSelf: 'center'}
+  icon: { 
+    alignSelf: 'center',
+    fontSize: 24,
+    color: '#333'
+}
 });

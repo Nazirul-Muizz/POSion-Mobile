@@ -1,7 +1,7 @@
 import CustomButton from "@/component/CustomButton";
 import CustomSidebar from "@/component/CustomSidebar";
 import FullPageSpinner from "@/component/FullPageSpinner";
-import { useMenuSections, useUpdateMenuAvailability } from "@/hooks/MenuHook";
+import { useMenuSections, useUpdateMenuAvailability } from "@/hooks/menuHook";
 import { MenuItem } from "@/types/MenuType";
 import { useMemo, useState } from "react";
 import { ListRenderItemInfo, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -19,20 +19,6 @@ export default function MenuManagement() {
 
     const filteredSections = useMemo(() => {
         if (!Array.isArray(menuList)) return [];
-
-        menuList.forEach(section => {
-            console.log("SECTION:", section.title);
-
-            const items = Array.isArray(section.data) ? section.data : [];
-
-            items.forEach(item => {
-                console.log(
-                    "ITEM:", item.menu_item,
-                    "| isAvailable:", item.isAvailable,
-                    "| TYPE:", typeof item.isAvailable
-                );
-            });
-        });
 
         const searchStatement = search.trim().toLowerCase();
 
@@ -57,6 +43,10 @@ export default function MenuManagement() {
 
     }, [menuList, search, activeTab])
 
+    if (isMenuLoading || isMenuFetching) {
+        return <FullPageSpinner message="Memuatkan menu..." />
+    }
+
 
     const renderItem = ({item}: ListRenderItemInfo<MenuItem>) => {
         //console.log(`menu id from render item: ${item.menu_id}`)
@@ -67,14 +57,12 @@ export default function MenuManagement() {
                     <View style={{flex:1}}>
                     <TouchableOpacity style={{ }} onPress={() => mutation.mutate({menu_id: item.menu_id, isAvailable: false})}>
                         <FontAwesome name="remove" size={22} color="red" style={ styles.operationIcons } />
-                        {/* <Text style={{color:'black', fontSize:10,  flexShrink:1, flexGrow:1, flexBasis:'0%'}}>Tanda Tiada</Text> */}
                     </TouchableOpacity>
                     </View>
                 ) :
                 <View style={{flex:1}}>
                     <TouchableOpacity onPress={() => mutation.mutate({menu_id: item.menu_id, isAvailable: true})}>
                         <FontAwesome6 name="add" size={22} color="green" style={ styles.operationIcons}/>
-                        {/* <Text style={{color:'black', fontSize:10}}>Tanda Ada</Text> */}
                     </TouchableOpacity>
                 </View>
                 }
@@ -85,7 +73,6 @@ export default function MenuManagement() {
 
     return (
         <View style={{ flex:1, backgroundColor:'black' }}>
-            {isMenuLoading || isMenuFetching && ( <FullPageSpinner message="Loading menu from database..."/> ) }
             <View style={{flexDirection:'row', backgroundColor:'black', marginHorizontal:10}} >
                 <TouchableOpacity onPress={() => setShowSidebar(true)} style={ styles.menuButton }>
                     <Entypo name="menu" size={36} color="white" />
@@ -96,9 +83,10 @@ export default function MenuManagement() {
                     <Entypo name="magnifying-glass" size={20} color="#666" style={styles.searchIcon} />
                     <TextInput
                         placeholder="Cari melalui nama item"
+                        placeholderTextColor={'black'}
                         value={search}
                         onChangeText={setSearch}
-                        style={{justifyContent:'center'}}
+                        style={{justifyContent:'center', color:'black'}}
                     />
             </View>
             <View style={ styles.buttonContainer }>
@@ -135,8 +123,8 @@ export default function MenuManagement() {
 
 
             {showSidebar && (
-                <CustomSidebar onClose = { () => setShowSidebar(false) }>
-                    {/* add item and remove item specific only for menu manager */}
+                <CustomSidebar 
+                    onClose = { () => setShowSidebar(false) }>
                 </CustomSidebar>
             )}
         </View> 

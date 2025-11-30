@@ -4,7 +4,7 @@ import { SidebarProps } from "@/types/UiProps";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 import ConfirmPopup from './ConfirmPopup';
 
 const screenWidth = Dimensions.get('window').width;
@@ -28,11 +28,7 @@ export default function CustomSidebar({ onClose, children }: SidebarProps) {
         }).start();
         
         // Return a cleanup function to handle the closing animation
-        return () => {
-            // To ensure a smooth close animation when 'onClose' is called, 
-            // you might handle the reverse animation in the parent component 
-            // before unmounting, but for simplicity, we focus on the open animation here.
-        };
+        return () => {};
     }, []);
 
     const handleLogout = async () => {
@@ -53,39 +49,41 @@ export default function CustomSidebar({ onClose, children }: SidebarProps) {
     };
     
   return (
-    <Modal
-        visible={true}
-        transparent={true} // Allows content behind to be seen (for dimming overlay)
-        //animationType="slide" // Adds a nice slide-in effect
-        onRequestClose={onClose} // Handles Android back button press
-    >
+    <SafeAreaView>
+      <Modal
+          visible={true}
+          transparent={true} // Allows content behind to be seen (for dimming overlay)
+          //animationType="slide" // Adds a nice slide-in effect
+          onRequestClose={onClose} // Handles Android back button press
+      >
 
-      <TouchableWithoutFeedback onPress={onClose}>
-          <SafeAreaView style={styles.overlay}>
-            <Animated.View style={ animatedSidebarStyle }>
-                <TouchableWithoutFeedback>
-                    <View style={styles.sidebar}>
-                        <Text style={styles.title}>Menu</Text>
-                        {children}
-                        <TouchableOpacity onPress={() => {}} > 
-                            {/* <>TODO: Customize the Theme Preference using OnPress</> */}
-                            <Text style={styles.menuItem}>Theme Preference</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setShowConfirm(true)} >
-                            <Text style={styles.menuItem}>Logout</Text>
-                        </TouchableOpacity>
-                        <ConfirmPopup 
-                            visible={showConfirm}
-                            message='Are you sure you want to logout?'
-                            onConfirm={handleLogout}
-                            onCancel={() => setShowConfirm(false)}
-                        />
-                    </View>
-                </TouchableWithoutFeedback>
-              </ Animated.View>
-          </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </Modal>
+        <TouchableWithoutFeedback onPress={onClose}>
+            <View style={styles.overlay}>
+              <Animated.View style={ animatedSidebarStyle }>
+                  <TouchableWithoutFeedback>
+                      <View style={styles.sidebar}>
+                          <Text style={styles.title}>Menu</Text>
+                          {children}
+                          <TouchableOpacity onPress={() => {}} > 
+                              {/* <>TODO: Customize the Theme Preference using OnPress</> */}
+                              <Text style={styles.menuItem}>Theme Preference</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => setShowConfirm(true)} >
+                              <Text style={styles.menuItem}>Logout</Text>
+                          </TouchableOpacity>
+                          <ConfirmPopup 
+                              visible={showConfirm}
+                              message='Are you sure you want to logout?'
+                              onConfirm={handleLogout}
+                              onCancel={() => setShowConfirm(false)}
+                          />
+                      </View>
+                  </TouchableWithoutFeedback>
+                </ Animated.View>
+            </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
